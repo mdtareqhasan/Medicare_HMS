@@ -1,0 +1,43 @@
+# Environment Variables
+.env
+.env.local
+.env.production
+
+# Build Output
+dist/
+build/
+build_output.txt
+
+# Backend Logs & Debug files
+backend/*.log
+backend/app.log
+backend/build.log
+backend/compile_output.txt
+backend/debug-out.txt
+backend/debug-out2.txt
+backend/debug-out3.txt
+backend/error_output.txt
+backend/mvn-output.txt
+
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+application.properties
+
+# Node
+node_modules/
+
+# Lock files 
+bun.lock
+bun.lockb
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db

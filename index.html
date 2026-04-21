@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Medicare - Hospital Management System</title>
+    <meta name="description" content="Medicare — Complete hospital management system with patient care, doctor scheduling, pharmacy, laboratory, and billing." />
+    <meta name="author" content="Lovable" />
+    <meta property="og:title" content="MediCore HMS" />
+    <meta property="og:description" content="Modern Hospital Management System" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@Lovable" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <script>
+  // এটি একটি গ্লোবাল ভুয়া (Mock) সুপাবেস অবজেক্ট তৈরি করবে 
+  // যাতে কোডটি আর ক্র্যাশ না করে
+  if (!window.supabase) {
+    window.supabase = {
+      auth: {
+        getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+        signInWithPassword: () => Promise.resolve({ data: {}, error: null }),
+        signOut: () => Promise.resolve({ error: null }),
+      },
+      from: () => ({
+        select: () => ({
+          order: () => Promise.resolve({ data: [], error: null }),
+          eq: () => Promise.resolve({ data: [], error: null }),
+          in: () => Promise.resolve({ data: [], error: null }),
+          neq: () => Promise.resolve({ data: [], error: null }),
+          single: () => Promise.resolve({ data: null, error: null }),
+        }),
+        insert: () => Promise.resolve({ data: null, error: null }),
+        update: () => Promise.resolve({ data: null, error: null }),
+      }),
+      storage: { from: () => ({ upload: () => Promise.resolve({ data: {}, error: null }) }) }
+    };
+  }
+</script>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

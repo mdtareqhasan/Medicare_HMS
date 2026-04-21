@@ -1,0 +1,48 @@
+# Server Configuration
+server.port=8080
+
+# Database Configuration
+# Update with your MySQL credentials
+spring.datasource.url=jdbc:mysql://localhost:3306/medicare_hms?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+spring.datasource.username=root
+spring.datasource.password=root1234
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# JPA/Hibernate Configuration
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+
+# JWT Configuration
+# IMPORTANT: Generate a strong secret key (min 32 characters) for production
+jwt.secret=9a4f2c8d3b7a1e5f9g2h4j6k8l0m1n3p5q7r9s1t3u5v7w9x1y3z5a7b9c1d3e5f
+jwt.expiration=86400000
+
+# CORS Configuration (comma-separated, no spaces)
+# Example: http://localhost:5173,http://localhost:3000,https://yourdomain.com
+CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:8080,http://localhost:3000
+
+# Cloudinary Configuration (for file uploads)
+cloudinary.cloud_name=dlg2lxorm
+cloudinary.api_key=164228122174883
+cloudinary.api_secret=ZppImxiNjE8lvUampEQ_EEIbGSA
+
+# Google OAuth2 Configuration
+spring.security.oauth2.client.registration.google.client-id=YOUR_GOOGLE_CLIENT_ID
+spring.security.oauth2.client.registration.google.client-secret=YOUR_GOOGLE_CLIENT_SECRET
+spring.security.oauth2.client.registration.google.scope=openid,profile,email
+
+# Frontend URL for OAuth2 redirect
+app.frontend.url=http://localhost:5173
+
+# File Upload
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
+
+# Logging
+logging.level.org.springframework.web=INFO
+logging.level.org.springframework.validation=INFO
+logging.level.com.medicare.hms=DEBUG
+
+# Application Name
+spring.application.name=HMS Backend
