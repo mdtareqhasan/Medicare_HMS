@@ -1,6 +1,7 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TopBar } from "@/components/TopBar";
+import { AIChatbot } from "@/components/AIChatbot";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -11,6 +12,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           <TopBar />
           <main className="flex-1 p-4 md:p-6 overflow-auto">{children}</main>
         </div>
+        <AIChatbot />
       </div>
     </SidebarProvider>
   );

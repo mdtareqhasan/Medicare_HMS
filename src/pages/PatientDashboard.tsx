@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { normalizeAppointmentStatus } from "@/lib/utils";
 import { appointmentService } from "@/api/appointmentService";
@@ -40,9 +40,9 @@ interface MedicalRecord {
 // ── Stat Card ────────────────────────────────────────────────
 function StatCard({ icon: Icon, title, value, subtitle, color, delay }: any) {
   return (
-    <div className="bg-card border p-5 rounded-2xl shadow-sm hover:shadow-md transition-all animate-in fade-in slide-in-from-bottom-2" style={{ animationDelay: `${delay}ms` }}>
+    <div className="rounded-lg border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md animate-in fade-in slide-in-from-bottom-2" style={{ animationDelay: `${delay}ms` }}>
       <div className="flex items-center gap-3 mb-2">
-        <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${color}`}>
+        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${color}`}>
           <Icon className="h-5 w-5" />
         </div>
         <span className="text-sm font-semibold text-muted-foreground">{title}</span>
@@ -51,6 +51,32 @@ function StatCard({ icon: Icon, title, value, subtitle, color, delay }: any) {
       <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
     </div>
   );
+}
+
+const panelClass = "rounded-lg border bg-card p-5 shadow-sm";
+const recordClass = "rounded-lg border border-border/60 bg-background p-4 shadow-sm transition-colors hover:bg-muted/30";
+
+function CountPill({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return (
+    <span className={`rounded-full bg-muted px-2.5 py-1 text-xs font-semibold ${className}`}>
+      {children}
+    </span>
+  );
+}
+
+function EmptyState({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex min-h-36 items-center justify-center rounded-lg border border-dashed bg-muted/20 px-4 text-center text-sm text-muted-foreground">
+      {children}
+    </div>
+  );
+}
+
+function getStatusBadgeClass(status?: string) {
+  const value = status?.toUpperCase();
+  if (value === "COMPLETED" || value === "DISPENSED") return "bg-emerald-100 text-emerald-700 border-emerald-200";
+  if (value === "IN_PROGRESS") return "bg-blue-100 text-blue-700 border-blue-200";
+  return "bg-amber-100 text-amber-700 border-amber-200";
 }
 
 // ── Main ─────────────────────────────────────────────────────
@@ -194,9 +220,9 @@ export default function PatientDashboard() {
   }
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
+    <div className="space-y-6 p-4 md:p-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-primary/5 p-6 rounded-3xl border border-primary/10">
+      <div className="flex flex-col items-start justify-between gap-4 rounded-lg border border-primary/10 bg-primary/5 p-6 md:flex-row md:items-center">
         <div className="flex items-center gap-4">
           <Avatar className="h-16 w-16 border-4 border-background shadow-sm">
             <AvatarFallback className="bg-primary text-primary-foreground text-xl font-bold">
@@ -212,7 +238,7 @@ export default function PatientDashboard() {
             </p>
           </div>
         </div>
-        <Button onClick={handleBookAppointment} className="rounded-xl px-6">
+        <Button onClick={handleBookAppointment} className="rounded-lg px-6">
           <Plus className="mr-2 h-4 w-4" /> Book New Appointment
         </Button>
       </div>
@@ -232,16 +258,16 @@ export default function PatientDashboard() {
       {/* Appointments + Prescriptions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Upcoming Appointments */}
-        <div className="bg-card border rounded-2xl p-6 shadow-sm">
+        <div className={panelClass}>
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold flex items-center gap-2"><CalendarCheck className="h-5 w-5 text-primary" /> Upcoming Appointments</h2>
             <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard/appointments")}>View All</Button>
           </div>
           <div className="space-y-3">
             {upcomingAppts.length > 0 ? upcomingAppts.slice(0, 5).map((appt) => (
-              <div key={appt.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border border-border/50">
+              <div key={appt.id} className="flex items-center justify-between gap-4 rounded-lg border border-border/60 bg-background p-4 shadow-sm transition-colors hover:bg-muted/30">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 font-bold text-primary">
                     {appt.doctor_name?.charAt(0) || "D"}
                   </div>
                   <div>
@@ -257,50 +283,60 @@ export default function PatientDashboard() {
                 </div>
               </div>
             )) : (
-              <p className="text-center py-10 text-muted-foreground text-sm">No upcoming appointments.</p>
+              <EmptyState>No upcoming appointments.</EmptyState>
             )}
           </div>
         </div>
 
         {/* My Prescriptions */}
-        <div className="bg-card border rounded-2xl p-6 shadow-sm">
+        <div className={panelClass}>
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold flex items-center gap-2"><Pill className="h-5 w-5 text-emerald-600" /> My Prescriptions</h2>
-            <span className="text-xs font-semibold bg-muted/50 rounded-full px-3 py-1 text-emerald-700">{prescriptions.length} total</span>
+            <CountPill className="text-emerald-700">{prescriptions.length} total</CountPill>
           </div>
           <div className="space-y-3">
             {prescriptions.length > 0 ? prescriptions.slice(0, 5).map((rx) => {
               const meds = parseMeds(rx.medicines);
               const rxLabTests = (rx as any).labTests as string[] | undefined;
               return (
-                <div key={rx.id} className="p-4 bg-muted/30 rounded-xl border border-border/50">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold">Dr. {rx.doctorName || rx.doctorId}</p>
+                <div key={rx.id} className={recordClass}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
+                        <Pill className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold">Dr. {rx.doctorName || rx.doctorId}</p>
                       <p className="text-xs text-muted-foreground">
                         {meds.length} medicine(s) • {fmtDate(rx.createdAt)}
                       </p>
-                      {rx.notes && <p className="text-xs mt-1">{rx.notes}</p>}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex shrink-0 items-center gap-2">
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-8 px-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                        className="h-8 px-2 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
                         onClick={() => handleDownloadPDF(rx)}
                         title="Download PDF"
                       >
                         <Download className="h-4 w-4" />
                       </Button>
-                      <Badge className={`text-[10px] border-0 ${rx.status === "PENDING" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"}`}>
+                      <Badge variant="outline" className={`text-[10px] ${getStatusBadgeClass(rx.status)}`}>
                         {rx.status === "PENDING" ? "Pending" : "Dispensed"}
                       </Badge>
                     </div>
                   </div>
+                  {rx.notes && (
+                    <div className="mt-3 rounded-lg bg-muted/40 px-3 py-2">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Notes</p>
+                      <p className="mt-1 text-xs leading-5">{rx.notes}</p>
+                    </div>
+                  )}
                   {meds.length > 0 && (
-                    <div className="mt-2 space-y-1">
+                    <div className="mt-3 grid gap-2">
                       {meds.slice(0, 3).map((m, i) => (
-                        <p key={i} className="text-xs bg-white/50 rounded-lg px-2 py-1">
+                        <p key={i} className="rounded-lg border bg-muted/20 px-3 py-2 text-xs">
                           💊 {m.name} {m.dosage ? `— ${m.dosage}` : ""}
                         </p>
                       ))}
@@ -309,10 +345,10 @@ export default function PatientDashboard() {
                   )}
                   {rxLabTests && rxLabTests.length > 0 && (
                     <div className="mt-2 pt-2 border-t border-border/30">
-                      <p className="text-xs text-muted-foreground mb-1">Lab Tests:</p>
+                      <p className="mb-1 text-xs font-medium text-muted-foreground">Recommended tests</p>
                       <div className="flex flex-wrap gap-1">
                         {rxLabTests.map((test, i) => (
-                          <Badge key={i} variant="outline" className="text-[10px] bg-purple-50 text-purple-700 border-purple-200">
+                          <Badge key={i} variant="outline" className="border-purple-200 bg-purple-50 text-[10px] text-purple-700">
                             {test}
                           </Badge>
                         ))}
@@ -322,7 +358,7 @@ export default function PatientDashboard() {
                 </div>
               );
             }) : (
-              <p className="text-center py-10 text-muted-foreground text-sm">No prescriptions found.</p>
+              <EmptyState>No prescriptions found.</EmptyState>
             )}
           </div>
         </div>
@@ -331,14 +367,14 @@ export default function PatientDashboard() {
       {/* Lab Results + Medical History + Profile */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Lab Results */}
-        <div className="bg-card border rounded-2xl p-6 shadow-sm">
+        <div className={panelClass}>
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold flex items-center gap-2">
               <FlaskConical className="h-5 w-5 text-purple-600" /> My Lab Results
             </h2>
-            <span className="text-xs font-semibold bg-muted/50 rounded-full px-2 py-0.5 text-purple-700">
+            <CountPill className="text-purple-700">
               {labReports.length + pendingLabTestsFromRx.length}
-            </span>
+            </CountPill>
           </div>
           
           {/* Pending Lab Tests from Prescriptions - Awaiting Result */}
@@ -347,13 +383,13 @@ export default function PatientDashboard() {
               <p className="text-xs font-semibold text-muted-foreground mb-2">Awaiting Results</p>
               <div className="space-y-2">
                 {pendingLabTestsFromRx.map((test, idx) => (
-                  <div key={idx} className="p-3 bg-amber-50 rounded-xl border border-amber-200">
+                  <div key={idx} className="rounded-lg border border-amber-200 bg-amber-50 p-3">
                     <div className="flex justify-between items-start">
                       <div>
                         <p className="text-sm font-medium">{test}</p>
                         <p className="text-xs text-amber-600">Prescribed - Awaiting result</p>
                       </div>
-                      <Badge className="text-[10px] bg-amber-100 text-amber-700 border-0">
+                      <Badge variant="outline" className="border-amber-200 bg-amber-100 text-[10px] text-amber-700">
                         Pending
                       </Badge>
                     </div>
@@ -365,21 +401,17 @@ export default function PatientDashboard() {
           
           {/* Completed Lab Reports */}
           {labReports.length === 0 && pendingLabTestsFromRx.length === 0 ? (
-            <p className="text-muted-foreground text-sm text-center py-8">No lab tests found.</p>
+            <EmptyState>No lab tests found.</EmptyState>
           ) : labReports.length > 0 && (
             <div className="space-y-2 max-h-[280px] overflow-y-auto">
               {labReports.map((lr) => (
-                <div key={lr.id} className="p-3 bg-muted/20 rounded-xl border border-border/40">
+                <div key={lr.id} className="rounded-lg border border-border/60 bg-background p-3 shadow-sm">
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="text-sm font-medium">{lr.labTest?.testName || "Test"}</p>
                       <p className="text-xs text-muted-foreground">{lr.createdAt ? fmtDate(lr.createdAt) : "—"}</p>
                     </div>
-                    <Badge className={`text-[10px] border-0 ${
-                      lr.status?.toUpperCase() === "COMPLETED" ? "bg-emerald-100 text-emerald-700"
-                      : lr.status?.toUpperCase() === "IN_PROGRESS" ? "bg-blue-100 text-blue-700"
-                      : "bg-amber-100 text-amber-700"
-                    }`}>
+                    <Badge variant="outline" className={`text-[10px] ${getStatusBadgeClass(lr.status)}`}>
                       {lr.status?.toUpperCase() === "COMPLETED" ? "Completed"
                         : lr.status?.toUpperCase() === "IN_PROGRESS" ? "In Progress"
                         : "Awaiting results"}
@@ -397,18 +429,19 @@ export default function PatientDashboard() {
         </div>
 
         {/* Medical History */}
-        <div className="bg-card border rounded-2xl p-6 shadow-sm">
+        <div className={panelClass}>
           <h2 className="font-bold flex items-center gap-2 mb-4">
             <FileText className="h-5 w-5 text-emerald-600" /> Medical History
-            <span className="ml-auto text-xs font-semibold bg-muted/50 rounded-full px-2 py-0.5 text-emerald-700">{records.length}</span>
+            <CountPill className="ml-auto text-emerald-700">{records.length}</CountPill>
           </h2>
           {records.length === 0 ? (
-            <p className="text-muted-foreground text-sm text-center py-8">No medical records found.</p>
+            <EmptyState>No medical records found.</EmptyState>
           ) : (
             <div className="space-y-3 max-h-[320px] overflow-y-auto">
               {records.map((rec, idx) => (
-                <div key={rec.id} className="relative pl-5 border-l-2 border-emerald-200">
-                  <div className="absolute left-[-5px] top-1 h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                <div key={rec.id} className="relative rounded-lg border bg-background p-4 pl-5 shadow-sm">
+                  <div className="absolute left-0 top-4 h-full w-1 rounded-r-full bg-emerald-200" />
+                  <div className="absolute left-[-4px] top-5 h-2.5 w-2.5 rounded-full bg-emerald-500" />
                   <p className="text-xs text-muted-foreground">{fmtDate(rec.record_date)}</p>
                   <p className="text-sm font-semibold mt-0.5">{rec.diagnosis}</p>
                   <p className="text-xs text-muted-foreground">Dr. {rec.doctor_name || "Unknown"}</p>
@@ -420,15 +453,25 @@ export default function PatientDashboard() {
         </div>
 
         {/* Profile */}
-        <div className="bg-card border rounded-2xl p-6 shadow-sm">
+        <div className={panelClass}>
           <h2 className="font-bold flex items-center gap-2 mb-4"><User className="h-5 w-5 text-primary" /> My Profile</h2>
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-xs"><Phone className="h-4 w-4 text-muted-foreground" /> Phone: {user?.phone || "Not set"}</div>
-            <div className="flex items-center gap-2 text-xs"><MapPin className="h-4 w-4 text-muted-foreground" /> Address: {user?.address || "Not set"}</div>
-            <div className="flex items-center gap-2 text-xs"><Heart className="h-4 w-4 text-muted-foreground" /> Emergency: {user?.emergencyContact || "Not set"}</div>
-            <div className="flex items-center gap-2 text-xs"><Shield className="h-4 w-4 text-muted-foreground" /> Insurance: {user?.insurance || "Not set"}</div>
+            {[
+              { icon: Phone, label: "Phone", value: user?.phone || "Not set" },
+              { icon: MapPin, label: "Address", value: user?.address || "Not set" },
+              { icon: Heart, label: "Emergency", value: user?.emergencyContact || "Not set" },
+              { icon: Shield, label: "Insurance", value: user?.insurance || "Not set" },
+            ].map(({ icon: Icon, label, value }) => (
+              <div key={label} className="flex items-start gap-3 rounded-lg border bg-background px-3 py-2.5 text-xs">
+                <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                <div className="min-w-0">
+                  <p className="font-medium text-muted-foreground">{label}</p>
+                  <p className="break-words">{value}</p>
+                </div>
+              </div>
+            ))}
           </div>
-          <Button variant="outline" className="w-full mt-6 rounded-xl" onClick={() => navigate("/dashboard/profile")}>Edit Profile</Button>
+          <Button variant="outline" className="mt-6 w-full rounded-lg" onClick={() => navigate("/dashboard/profile")}>Edit Profile</Button>
         </div>
       </div>
     </div>

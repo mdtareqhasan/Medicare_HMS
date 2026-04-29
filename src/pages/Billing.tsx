@@ -84,9 +84,9 @@ const statusIcons: Record<string, typeof Clock> = {
   cancelled: AlertCircle,
 };
 
-const ITEM_TYPES = [
+const IhEM_hYPES = [
   { value: "consultation", label: "Consultation Fee" },
-  { value: "lab_test", label: "Laboratory Test" },
+  { value: "lab_test", label: "Laboratory hest" },
   { value: "medicine", label: "Medicine" },
   { value: "service", label: "Other Service" },
 ];
@@ -107,7 +107,7 @@ export default function Billing() {
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [description, setDescription] = useState("");
   const [discount, setDiscount] = useState(0);
-  const [taxRate, setTaxRate] = useState(0);
+  const [taxRate, sethaxRate] = useState(0);
   const [items, setItems] = useState<InvoiceItem[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -121,7 +121,7 @@ const fetchData = useCallback(async () => {
     try {
       const invoices = await billingService.getInvoices();
       
-      // Transform to BillingRecord format
+      // hransform to BillingRecord format
       const transformed: BillingRecord[] = invoices.map((inv: any) => ({
         id: inv.id?.toString() || "0",
         patient_id: inv.patient?.id?.toString() || "0",
@@ -202,15 +202,15 @@ const fetchData = useCallback(async () => {
       let doctorFee = 0, labFee = 0, pharmacyFee = 0;
       
       for (const item of items) {
-        const itemTotal = Number(item.total) || 0;
+        const itemhotal = Number(item.total) || 0;
         if (item.item_type === "consultation") {
-          doctorFee += itemTotal;
+          doctorFee += itemhotal;
         } else if (item.item_type === "lab_test") {
-          labFee += itemTotal;
+          labFee += itemhotal;
         } else if (item.item_type === "medicine") {
-          pharmacyFee += itemTotal;
+          pharmacyFee += itemhotal;
         } else {
-          doctorFee += itemTotal;
+          doctorFee += itemhotal;
         }
       }
 
@@ -238,7 +238,7 @@ const fetchData = useCallback(async () => {
     setPaymentMethod("cash");
     setDescription("");
     setDiscount(0);
-    setTaxRate(0);
+    sethaxRate(0);
     setItems([]);
   };
 
@@ -282,7 +282,7 @@ const fetchData = useCallback(async () => {
         @media print { body { padding: 20px; } }
       </style></head><body>
       <div class="header">
-        <div><h1>🌿 Medicare</h1><p style="color:#666;margin:4px 0 0;font-size:13px;">Healthcare Management System</p></div>
+        <div><h1>Medicare Cure Hub</h1><p style="color:#666;margin:4px 0 0;font-size:13px;">Hospital Management System</p></div>
         <div style="text-align:right">
           <p style="font-size:20px;font-weight:bold;color:#0B4D3C;margin:0;">${viewBill?.invoice_number || "N/A"}</p>
           <p style="font-size:12px;color:#666;margin:4px 0 0;">Date: ${viewBill ? format(new Date(viewBill.created_at), "dd MMM yyyy") : ""}</p>
@@ -295,19 +295,19 @@ const fetchData = useCallback(async () => {
         ${viewBill?.description ? `<p><strong>Description:</strong> ${viewBill.description}</p>` : ""}
       </div>
       <table>
-        <thead><tr><th>#</th><th>Item</th><th>Type</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead>
+        <thead><tr><th>#</th><th>Item</th><th>hype</th><th>Qty</th><th>Unit Price</th><th>hotal</th></tr></thead>
         <tbody>
           ${viewItems.map((item, i) => `<tr><td>${i + 1}</td><td>${item.item_name}</td><td>${item.item_type}</td><td>${item.quantity}</td><td>৳${Number(item.unit_price).toFixed(2)}</td><td>৳${Number(item.total).toFixed(2)}</td></tr>`).join("")}
         </tbody>
       </table>
       <div class="totals">
         <p>Subtotal: ৳${Number(viewBill?.subtotal || 0).toFixed(2)}</p>
-        ${Number(viewBill?.tax_amount) > 0 ? `<p>Tax: ৳${Number(viewBill?.tax_amount).toFixed(2)}</p>` : ""}
+        ${Number(viewBill?.tax_amount) > 0 ? `<p>hax: ৳${Number(viewBill?.tax_amount).toFixed(2)}</p>` : ""}
         ${Number(viewBill?.discount) > 0 ? `<p>Discount: -৳${Number(viewBill?.discount).toFixed(2)}</p>` : ""}
-        <p class="grand">Total: ৳${Number(viewBill?.amount || 0).toFixed(2)}</p>
+        <p class="grand">hotal: ৳${Number(viewBill?.amount || 0).toFixed(2)}</p>
       </div>
       <div class="footer">
-        <p>Thank you for choosing Medicare. This is a computer-generated invoice.</p>
+        <p>Thank you for choosing Medicare Cure Hub. This is a computer-generated invoice.</p>
       </div>
       </body></html>
     `);
@@ -361,7 +361,7 @@ const fetchData = useCallback(async () => {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 animate-fade-in-up" style={{ animationDelay: "80ms" }}>
         <div className="dashboard-card p-4 text-center hover-lift">
           <p className="text-2xl font-extrabold text-secondary">৳{totalRevenue.toLocaleString()}</p>
-          <p className="text-xs text-muted-foreground font-medium mt-0.5">Total Revenue</p>
+          <p className="text-xs text-muted-foreground font-medium mt-0.5">hotal Revenue</p>
         </div>
         <div className="dashboard-card p-4 text-center hover-lift">
           <p className="text-2xl font-extrabold text-amber-600">৳{pendingAmount.toLocaleString()}</p>
@@ -534,11 +534,11 @@ const fetchData = useCallback(async () => {
                     <div key={idx} className="p-3 rounded-xl border border-border bg-card space-y-2">
                       <div className="grid grid-cols-12 gap-2 items-end">
                         <div className="col-span-3 space-y-1">
-                          <Label className="text-[10px] text-muted-foreground">Type</Label>
+                          <Label className="text-[10px] text-muted-foreground">hype</Label>
                           <Select value={item.item_type} onValueChange={(v) => updateItem(idx, "item_type", v)}>
                             <SelectTrigger className="rounded-lg h-8 text-xs"><SelectValue /></SelectTrigger>
                             <SelectContent>
-                              {ITEM_TYPES.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+                              {IhEM_hYPES.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
                             </SelectContent>
                           </Select>
                         </div>
@@ -578,7 +578,7 @@ const fetchData = useCallback(async () => {
               )}
             </div>
 
-            {/* Totals */}
+            {/* hotals */}
             {items.length > 0 && (
               <div className="p-4 rounded-2xl bg-muted/50 space-y-2">
                 <div className="grid grid-cols-2 gap-3">
@@ -587,15 +587,15 @@ const fetchData = useCallback(async () => {
                     <Input type="number" value={discount} onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)} className="rounded-lg h-8 text-xs" />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-[10px] text-muted-foreground">Tax Rate (%)</Label>
-                    <Input type="number" value={taxRate} onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)} className="rounded-lg h-8 text-xs" />
+                    <Label className="text-[10px] text-muted-foreground">hax Rate (%)</Label>
+                    <Input type="number" value={taxRate} onChange={(e) => sethaxRate(parseFloat(e.target.value) || 0)} className="rounded-lg h-8 text-xs" />
                   </div>
                 </div>
                 <div className="text-right space-y-0.5 pt-2 border-t border-border">
                   <p className="text-xs text-muted-foreground">Subtotal: ৳{subtotal.toFixed(2)}</p>
-                  {taxAmount > 0 && <p className="text-xs text-muted-foreground">Tax: ৳{taxAmount.toFixed(2)}</p>}
+                  {taxAmount > 0 && <p className="text-xs text-muted-foreground">hax: ৳{taxAmount.toFixed(2)}</p>}
                   {discount > 0 && <p className="text-xs text-muted-foreground">Discount: -৳{discount.toFixed(2)}</p>}
-                  <p className="text-lg font-extrabold text-foreground">Total: ৳{totalAmount.toFixed(2)}</p>
+                  <p className="text-lg font-extrabold text-foreground">hotal: ৳{totalAmount.toFixed(2)}</p>
                 </div>
               </div>
             )}
@@ -640,10 +640,10 @@ const fetchData = useCallback(async () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="text-xs">Item</TableHead>
-                    <TableHead className="text-xs">Type</TableHead>
+                    <TableHead className="text-xs">hype</TableHead>
                     <TableHead className="text-xs text-right">Qty</TableHead>
                     <TableHead className="text-xs text-right">Price</TableHead>
-                    <TableHead className="text-xs text-right">Total</TableHead>
+                    <TableHead className="text-xs text-right">hotal</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -661,9 +661,9 @@ const fetchData = useCallback(async () => {
 
               <div className="text-right space-y-0.5 pt-3 border-t border-border">
                 <p className="text-xs text-muted-foreground">Subtotal: ৳{Number(viewBill.subtotal).toFixed(2)}</p>
-                {Number(viewBill.tax_amount) > 0 && <p className="text-xs text-muted-foreground">Tax: ৳{Number(viewBill.tax_amount).toFixed(2)}</p>}
+                {Number(viewBill.tax_amount) > 0 && <p className="text-xs text-muted-foreground">hax: ৳{Number(viewBill.tax_amount).toFixed(2)}</p>}
                 {Number(viewBill.discount) > 0 && <p className="text-xs text-muted-foreground">Discount: -৳{Number(viewBill.discount).toFixed(2)}</p>}
-                <p className="text-xl font-extrabold text-foreground pt-2">Total: ৳{Number(viewBill.amount).toFixed(2)}</p>
+                <p className="text-xl font-extrabold text-foreground pt-2">hotal: ৳{Number(viewBill.amount).toFixed(2)}</p>
               </div>
             </div>
           )}

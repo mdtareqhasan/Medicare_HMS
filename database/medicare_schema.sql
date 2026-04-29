@@ -1,4 +1,4 @@
--- Medicare HMS Database Schema
+-- Medicare Cure Hub Database Schema
 -- Run this script to create the database tables
 
 CREATE DATABASE IF NOT EXISTS medicare_hms;

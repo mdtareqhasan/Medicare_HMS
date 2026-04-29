@@ -53,7 +53,7 @@ export default function LandingPage() {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-btn">
                 <Leaf className="h-5 w-5 text-white" />
               </div>
-              <span className="text-xl font-extrabold text-foreground tracking-tight">Medicare</span>
+              <span className="text-xl font-extrabold text-foreground tracking-tight">Medicare Cure Hub</span>
             </div>
 
             {/* Desktop nav */}
@@ -350,7 +350,7 @@ export default function LandingPage() {
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15">
                   <Leaf className="h-4 w-4 text-white" />
                 </div>
-                <span className="text-lg font-extrabold text-white">Medicare</span>
+                <span className="text-lg font-extrabold text-white">Medicare Cure Hub</span>
               </div>
               <p className="text-sm leading-relaxed text-white/60">
                 Providing quality healthcare services with modern facilities and expert medical professionals.
@@ -385,7 +385,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="border-t border-white/10 mt-10 pt-6 text-center">
-            <p className="text-xs text-white/40">© 2026 Medicare. All rights reserved.</p>
+            <p className="text-xs text-white/40">© 2026 Medicare Cure Hub. All rights reserved.</p>
           </div>
         </div>
       </footer>

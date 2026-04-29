@@ -35,10 +35,10 @@ export function exportPrescriptionPdf(data: ExportPrescriptionData) {
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(22);
   doc.setFont("helvetica", "bold");
-  doc.text("Medicare", 14, 18);
+  doc.text("Medicare Cure Hub", 14, 18);
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
-  doc.text("Health Management System", 14, 25);
+  doc.text("Hospital Management System", 14, 25);
 
   // Prescription label
   doc.setFontSize(11);
@@ -187,7 +187,7 @@ export function exportPrescriptionPdf(data: ExportPrescriptionData) {
   doc.line(14, footerY, pageWidth - 14, footerY);
   doc.setTextColor(150, 150, 150);
   doc.setFontSize(7);
-  doc.text("This is a digitally generated prescription from Medicare Health Management System.", pageWidth / 2, footerY + 5, { align: "center" });
+  doc.text("This is a digitally generated prescription from Medicare Cure Hub.", pageWidth / 2, footerY + 5, { align: "center" });
   doc.text(`Generated on: ${new Date().toLocaleString()}`, pageWidth / 2, footerY + 10, { align: "center" });
 
   doc.save(`Prescription_${data.patientName.replace(/\s+/g, "_")}_${data.date.replace(/\s+/g, "_")}.pdf`);

@@ -80,7 +80,7 @@ export default function Auth() {
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl gradient-btn">
               <Leaf className="h-6 w-6 text-white" />
             </div>
-            <span className="text-2xl font-extrabold text-foreground tracking-tight">Medicare</span>
+            <span className="text-2xl font-extrabold text-foreground tracking-tight">Medicare Cure Hub</span>
           </div>
 
           <h2 className="text-xl font-bold text-foreground text-center mb-1">

@@ -1,5 +1,5 @@
 @echo off
-echo Starting Medicare HMS Project...
+echo Starting Medicare Cure Hub Project...
 
 :: Start Backend in a new window
 start cmd /k "cd backend && mvn spring-boot:run"

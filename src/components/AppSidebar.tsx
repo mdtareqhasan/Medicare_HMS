@@ -83,13 +83,13 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-none">
       <div className="glass-sidebar h-full flex flex-col">
         <SidebarHeader className="p-5 pb-8">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15">
               <Leaf className="h-5 w-5 text-white" />
             </div>
             {!collapsed && (
-              <span className="text-xl font-extrabold text-white tracking-tight">
-                Medicare
+              <span className="text-xl font-extrabold tracking-tight whitespace-nowrap bg-gradient-to-r from-white via-teal-200 to-teal-400 bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]">
+                Medicare Cure Hub
               </span>
             )}
           </div>
