@@ -2,6 +2,7 @@
 .env
 .env.local
 .env.production
+backend/.env
 
 # Build Output
 dist/
@@ -37,6 +38,12 @@ bun.lockb
 .idea/
 .vscode/
 *.iml
+
+# Junk / accidental files in backend root
+backend/(
+backend/{
+backend/new
+backend/todayStart
 
 # OS
 .DS_Store

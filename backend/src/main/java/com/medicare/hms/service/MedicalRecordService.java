@@ -16,6 +16,7 @@ public class MedicalRecordService {
     @Autowired
     private MedicalRecordRepository medicalRecordRepository;
 
+    // Creates a medical record from appointment, doctor, patient, and visit notes.
     public MedicalRecord createMedicalRecord(Appointment appointment, User doctor, User patient, String diagnosis,
             String prescription, String notes) {
         MedicalRecord record = new MedicalRecord();
@@ -31,10 +32,12 @@ public class MedicalRecordService {
         return medicalRecordRepository.save(record);
     }
 
+    // Returns medical records for a patient.
     public List<MedicalRecord> getMedicalRecordsForPatient(User patient) {
         return medicalRecordRepository.findByPatient(patient);
     }
 
+    // Returns medical records created by a doctor.
     public List<MedicalRecord> getMedicalRecordsForDoctor(User doctor) {
         return medicalRecordRepository.findByDoctor(doctor);
     }

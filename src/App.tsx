@@ -20,7 +20,6 @@ import Pharmacy from "./pages/Pharmacy";
 import Laboratory from "./pages/Laboratory";
 import Billing from "./pages/Billing";
 import Analytics from "./pages/Analytics";
-import Chat from "./pages/Chat";
 import Profile from "./pages/Profile";
 import LoginSuccess from "./pages/LoginSuccess";
 import NotFound from "./pages/NotFound";
@@ -54,7 +53,6 @@ const App = () => (
                         <Route path="laboratory" element={<Laboratory />} />
                         <Route path="payments" element={<Billing />} />
                         <Route path="statistic" element={<Analytics />} />
-                        <Route path="chat" element={<Chat />} />
                         <Route path="profile" element={<Profile />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>

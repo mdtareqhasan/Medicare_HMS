@@ -20,11 +20,13 @@ public class NotificationService {
     @Autowired
     private UserRepository userRepository;
 
+    // Returns user notifications data.
     public List<Notification> getUserNotifications(String username) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
         return notificationRepository.findByUserOrderByCreatedAtDesc(user);
     }
 
+    // Marks every notification for a user as read.
     @Transactional
     public void markAllRead(String username) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
@@ -35,6 +37,7 @@ public class NotificationService {
         notificationRepository.saveAll(notifications);
     }
 
+    // Marks a single notification as read for a user.
     @Transactional
     public void markRead(String username, Long notificationId) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
@@ -47,6 +50,7 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
+    // Creates and saves a notification for a user.
     public Notification createNotification(String username, String title, String message, String type, String link) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
         Notification notification = new Notification();

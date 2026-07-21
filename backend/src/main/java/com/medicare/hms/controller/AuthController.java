@@ -16,9 +16,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    private AuthService authService; // private করা ভালো প্র্যাকটিস
+     @Autowired
+    private AuthService authService; 
 
+    // Authenticates submitted credentials and returns the signed-in user response.
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         try {
@@ -29,6 +30,7 @@ public class AuthController {
         }
     }
 
+    // Creates a new application user from the signup request.
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         try {
@@ -39,15 +41,17 @@ public class AuthController {
         }
     }
 
+    // Issues a fresh JWT for the currently authenticated user.
     @PostMapping("/refresh")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> refreshToken(@AuthenticationPrincipal UserDetailsImpl currentUser) {
         try {
-            // ইউজারের লেটেস্ট ডেটাবেস রোল অনুযায়ী নতুন টোকেন জেনারেট হবে
+           
             AuthResponse authResponse = authService.refreshTokenForUser(currentUser.getUsername());
             return ResponseEntity.ok(authResponse);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
+
 }

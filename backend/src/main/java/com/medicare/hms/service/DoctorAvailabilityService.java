@@ -24,11 +24,13 @@ public class DoctorAvailabilityService {
     @Autowired
     private UserRepository userRepository;
 
+    // Returns saved availability blocks for a doctor.
     public List<DoctorAvailabilityDto> getAvailability(Long doctorId) {
         User doctor = userRepository.findById(doctorId).orElseThrow(() -> new RuntimeException("Doctor not found"));
         return availabilityRepository.findByDoctor(doctor).stream().map(this::toDto).collect(Collectors.toList());
     }
 
+    // Replaces a doctor's weekly availability with the submitted schedule.
     public List<DoctorAvailabilityDto> saveAvailabilityBulk(Long doctorId, List<DoctorAvailabilityDto> dtos) {
         User doctor = userRepository.findById(doctorId).orElseThrow(() -> new RuntimeException("Doctor not found"));
 
@@ -59,6 +61,7 @@ public class DoctorAvailabilityService {
         return saved.stream().map(this::toDto).collect(Collectors.toList());
     }
 
+    // Converts the frontend day index into the matching DayOfWeek enum value.
     private DayOfWeek intToDayOfWeek(Integer dayIndex) {
         if (dayIndex == null)
             throw new IllegalArgumentException("dayOfWeek is required");
@@ -82,6 +85,7 @@ public class DoctorAvailabilityService {
         }
     }
 
+    // Deletes a single availability block that belongs to the doctor.
     public void deleteAvailability(Long doctorId, Long availabilityId) {
         DoctorAvailability availability = availabilityRepository.findById(availabilityId)
                 .orElseThrow(() -> new RuntimeException("Availability not found"));
@@ -91,6 +95,7 @@ public class DoctorAvailabilityService {
         availabilityRepository.delete(availability);
     }
 
+    // Converts an appointment entity into the API response DTO.
     private DoctorAvailabilityDto toDto(DoctorAvailability availability) {
         DoctorAvailabilityDto dto = new DoctorAvailabilityDto();
         dto.setId(availability.getId());
@@ -105,18 +110,21 @@ public class DoctorAvailabilityService {
         return dto;
     }
 
+    // Formats a LocalTime value for API responses.
     private String formatTime(LocalTime startTime) {
         if (startTime == null)
             return null;
         return startTime.format(DateTimeFormatter.ofPattern("HH:mm"));
     }
 
+    // Parses a time string from the API request into LocalTime.
     private LocalTime parseTime(String time) {
         if (time == null || time.isEmpty())
             return null;
         return LocalTime.parse(time);
     }
 
+    // Converts a DayOfWeek enum value back into the frontend day index.
     private int dayOfWeekToInt(DayOfWeek day) {
         if (day == null)
             return 0;

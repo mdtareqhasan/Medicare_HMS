@@ -13,10 +13,12 @@ public class DoctorService {
 
     private final UserRepository userRepository;
 
+    // Creates the doctor service with its user repository dependency.
     public DoctorService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
+    // Returns every user registered with the doctor role.
     @Transactional(readOnly = true)
     public List<User> getAllDoctors() {
         return userRepository.findByRole(UserRole.DOCTOR);

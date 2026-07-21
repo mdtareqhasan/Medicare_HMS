@@ -28,6 +28,7 @@ public class DoctorAvailabilityController {
         }
     }
 
+    // Returns saved availability blocks for a doctor.
     @GetMapping("/{doctorId}")
     public ResponseEntity<?> getAvailability(@PathVariable Long doctorId) {
         return ResponseEntity.ok(availabilityService.getAvailability(doctorId));

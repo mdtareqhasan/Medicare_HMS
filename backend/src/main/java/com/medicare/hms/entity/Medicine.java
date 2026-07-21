@@ -35,6 +35,7 @@ public class Medicine {
 
     private LocalDate expiryDate;
 
+    // Checks whether this medicine is below the low-stock threshold.
     public boolean isLowStock() {
         return stockQuantity != null && stockQuantity < 10;
     }

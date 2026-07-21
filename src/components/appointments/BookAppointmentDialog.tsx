@@ -339,18 +339,6 @@ export function BookAppointmentDialog({ open, onOpenChange, onSuccess, reschedul
 
     const apptDate = `${format(selectedDate, "yyyy-MM-dd")}T${selectedSlot}:00`;
 
-    const appointmentData: any = {
-      appointment_date: apptDate,
-      doctor_id: doctorId,
-      notes: notes || null,
-      consultation_type: consultationType,
-      visit_type: visitType,
-      urgency,
-      symptoms: selectedSymptoms,
-      department: department || null,
-      attached_file_url: fileUrl,
-    };
-
     if (rescheduleAppt) {
       try {
         await appointmentService.rescheduleAppointment(Number(rescheduleAppt.id), apptDate);
@@ -372,6 +360,11 @@ export function BookAppointmentDialog({ open, onOpenChange, onSuccess, reschedul
           doctorId: Number(doctorId),
           appointmentDate: apptDate,
           notes: notes || undefined,
+          consultationType,
+          visitType,
+          urgency,
+          department: department === "all" ? undefined : department || undefined,
+          symptoms: selectedSymptoms,
         };
 
         if (role !== 'patient') {

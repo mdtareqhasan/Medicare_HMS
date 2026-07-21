@@ -16,6 +16,7 @@ public class AuthResponse {
     private String email;
     private String role;
 
+    // Creates the login response returned after successful authentication.
     public AuthResponse(String accessToken, Long id, String username, String email, String role) {
         this.token = accessToken;
         this.type = "Bearer";

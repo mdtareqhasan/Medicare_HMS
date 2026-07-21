@@ -24,6 +24,7 @@ public class UserDetailsImpl implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
 
+    // Creates the immutable security principal used by Spring Security.
     public UserDetailsImpl(Long id, String username, String email, String password,
             Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
@@ -33,6 +34,7 @@ public class UserDetailsImpl implements UserDetails {
         this.authorities = authorities;
     }
 
+    // Builds Spring Security user details from an application user entity.
     public static UserDetailsImpl build(User user) {
         List<GrantedAuthority> authorities = List.of(
                 new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
@@ -45,49 +47,59 @@ public class UserDetailsImpl implements UserDetails {
                 authorities);
     }
 
+    // Returns granted roles and permissions for Spring Security.
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
     }
 
+    // Returns the authenticated user id.
     public Long getId() {
         return id;
     }
 
+    // Returns the authenticated user email address.
     public String getEmail() {
         return email;
     }
 
+    // Returns the password hash required by Spring Security.
     @Override
     public String getPassword() {
         return password;
     }
 
+    // Returns the username used by Spring Security.
     @Override
     public String getUsername() {
         return username;
     }
 
+    // Reports whether the account is still valid for authentication.
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    // Reports whether the account is not locked.
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
+    // Reports whether stored credentials are still valid.
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    // Reports whether the account is enabled.
     @Override
     public boolean isEnabled() {
         return true;
     }
 
+    // Compares users by id for security identity checks.
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -98,6 +110,7 @@ public class UserDetailsImpl implements UserDetails {
         return Objects.equals(id, user.id);
     }
 
+    // Builds the hash code from the user id.
     @Override
     public int hashCode() {
         return Objects.hash(id);

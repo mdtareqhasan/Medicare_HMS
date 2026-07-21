@@ -45,6 +45,7 @@ public class PrescriptionService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    // Creates a prescription without linking it to an appointment.
     @Transactional
     public PrescriptionResponse createPrescription(Long doctorId, Long patientId, String diagnosis,
             List<Map<String, String>> medicines, List<String> labTests,
@@ -52,6 +53,7 @@ public class PrescriptionService {
         return createPrescriptionWithAppointment(doctorId, patientId, diagnosis, medicines, labTests, notes, null);
     }
 
+    // Creates a prescription, optional lab orders, notifications, and appointment linkage.
     @Transactional
     public PrescriptionResponse createPrescriptionWithAppointment(Long doctorId, Long patientId, String diagnosis,
             List<Map<String, String>> medicines, List<String> labTests,
@@ -172,6 +174,7 @@ public class PrescriptionService {
         }
     }
 
+    // Returns prescriptions written for a patient.
     public List<PrescriptionResponse> listPrescriptionsForPatient(Long patientId) {
         try {
             User patient = userRepository.findById(patientId)
@@ -185,11 +188,13 @@ public class PrescriptionService {
         }
     }
 
+    // Returns prescriptions still waiting for pharmacy dispensing.
     public List<PrescriptionResponse> listPendingPrescriptions() {
         return prescriptionRepository.findByStatus(PrescriptionStatus.PENDING).stream().map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
+    // Marks a prescription as dispensed and returns the updated response.
     public PrescriptionResponse dispensePrescription(Long prescriptionId) {
         Prescription prescription = prescriptionRepository.findById(prescriptionId)
                 .orElseThrow(() -> new RuntimeException("Prescription not found"));
@@ -203,17 +208,20 @@ public class PrescriptionService {
         return toResponse(prescription);
     }
 
+    // Returns prescriptions already dispensed by pharmacy.
     public List<PrescriptionResponse> listDispensedPrescriptions() {
         return prescriptionRepository.findByStatus(PrescriptionStatus.DISPENSED).stream().map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
+    // Returns prescriptions written by a doctor.
     public List<PrescriptionResponse> listPrescriptionsForDoctor(Long doctorId) {
         User doctor = userRepository.findById(doctorId).orElseThrow(() -> new RuntimeException("Doctor not found"));
         return prescriptionRepository.findByDoctor(doctor).stream().map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
+    // Converts a prescription entity into the API response DTO.
     private PrescriptionResponse toResponse(Prescription prescription) {
         Long appointmentId = prescription.getAppointment() != null ? prescription.getAppointment().getId() : null;
         PrescriptionResponse response = new PrescriptionResponse(prescription.getId(), prescription.getPatient().getId(),

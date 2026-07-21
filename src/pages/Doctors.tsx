@@ -46,6 +46,7 @@ export default function Doctors() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [selectedDoctor, setSelectedDoctor] = useState<DoctorProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
   const [addDoctorOpen, setAddDoctorOpen] = useState(false);
   // ...existing code...
 
@@ -57,13 +58,13 @@ export default function Doctors() {
     setLoading(true);
     try {
       const data = await userService.getDoctors();
-      const doctorList: DoctorProfile[] = data.map((u) => ({
+      const doctorList: DoctorProfile[] = data.map((u: any) => ({
         id: u.id.toString(),
         user_id: u.id.toString(),
         full_name: u.username,
         phone: "",
         gender: "",
-        avatar_url: "",
+        avatar_url: u.avatarUrl || "",
         specialization: null,
         degrees: null,
         education: null,
@@ -95,6 +96,41 @@ export default function Doctors() {
 
   const initials = (name: string | null) =>
     name ? name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "DR";
+
+  const openDoctorProfile = async (doctor: DoctorProfile) => {
+    // Show the selected card immediately, then replace its summary data with the
+    // complete profile returned by the admin-only user-details endpoint.
+    setSelectedDoctor(doctor);
+    setProfileLoading(true);
+
+    try {
+      const profile = await userService.getUserById(Number(doctor.user_id));
+      const profileName = [profile.firstName, profile.lastName].filter(Boolean).join(" ");
+
+      const completeDoctor: DoctorProfile = {
+        ...doctor,
+        full_name: profileName || profile.username || doctor.full_name,
+        phone: profile.phone || "",
+        gender: profile.gender || "",
+        avatar_url: profile.avatarUrl || "",
+        specialization: profile.specialization || null,
+        degrees: profile.degrees || null,
+        education: profile.education || null,
+        experience_years: profile.experienceYears ?? null,
+        experience_details: profile.experienceDetails || null,
+        address: profile.address || "",
+        email: profile.email || doctor.email,
+        created_at: profile.createdAt || doctor.created_at,
+      };
+
+      // Do not reopen a dialog the user closed while its request was in flight.
+      setSelectedDoctor((current) => current?.id === doctor.id ? completeDoctor : current);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.error || "Unable to load the doctor's full profile");
+    } finally {
+      setProfileLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-4 md:space-y-5">
@@ -150,7 +186,7 @@ export default function Doctors() {
               key={doc.id}
               className="dashboard-card p-5 hover-lift cursor-pointer animate-fade-in-up group"
               style={{ animationDelay: `${(idx + 1) * 80}ms` }}
-              onClick={() => setSelectedDoctor(doc)}
+              onClick={() => void openDoctorProfile(doc)}
             >
               <div className="flex items-start gap-3.5">
                 <Avatar className="h-12 w-12 ring-2 ring-primary/10 shrink-0">
@@ -195,13 +231,21 @@ export default function Doctors() {
       )}
 
       {/* Doctor Detail Dialog */}
-      <Dialog open={!!selectedDoctor} onOpenChange={() => setSelectedDoctor(null)}>
+      <Dialog open={!!selectedDoctor} onOpenChange={(open) => {
+        if (!open) {
+          setSelectedDoctor(null);
+          setProfileLoading(false);
+        }
+      }}>
         <DialogContent className="rounded-3xl max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold">Doctor Profile</DialogTitle>
           </DialogHeader>
           {selectedDoctor && (
             <div className="space-y-5">
+              {profileLoading && (
+                <p className="text-sm text-muted-foreground">Loading full doctor profile…</p>
+              )}
               {/* Profile Header */}
               <div className="flex items-start gap-4 p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10">
                 <Avatar className="h-16 w-16 ring-4 ring-primary/10 shrink-0">

@@ -15,6 +15,7 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // Returns field-level validation errors for invalid request bodies.
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -27,6 +28,7 @@ public class GlobalExceptionHandler {
                 "errors", errors));
     }
 
+    // Returns a clear response when the request JSON cannot be parsed.
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, Object>> handleBadJson(HttpMessageNotReadableException ex) {
         return ResponseEntity.badRequest().body(Map.of(
@@ -34,6 +36,7 @@ public class GlobalExceptionHandler {
                 "message", "Invalid JSON: " + ex.getMostSpecificCause().getMessage()));
     }
 
+    // Converts expected runtime failures into bad-request API responses.
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
         String message = ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred";
@@ -53,6 +56,7 @@ public class GlobalExceptionHandler {
                 "timestamp", LocalDateTime.now().toString()));
     }
 
+    // Converts unexpected failures into a generic server-error response.
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneralException(Exception ex) {
         System.err.println("[GlobalExceptionHandler] Unhandled exception: " + ex.getMessage());

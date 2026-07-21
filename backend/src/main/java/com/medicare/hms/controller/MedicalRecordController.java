@@ -33,6 +33,7 @@ public class MedicalRecordController {
         @Autowired
         private AppointmentRepository appointmentRepository;
 
+        // Returns patient records data.
         @GetMapping("/patient/{patientId}")
         @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','NURSE','PATIENT')")
         public ResponseEntity<List<MedicalRecordResponse>> getPatientRecords(
@@ -79,6 +80,7 @@ public class MedicalRecordController {
                 return ResponseEntity.ok(response);
         }
 
+        // Returns doctor records data.
         @GetMapping("/doctor/{doctorId}")
         @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','NURSE')")
         public ResponseEntity<List<MedicalRecordResponse>> getDoctorRecords(
@@ -122,6 +124,7 @@ public class MedicalRecordController {
                 public String notes;
         }
 
+        // Creates a medical record from appointment, doctor, patient, and visit notes.
         @PostMapping
         @PreAuthorize("hasAnyRole('ADMIN','DOCTOR')")
         public ResponseEntity<MedicalRecordResponse> createMedicalRecord(

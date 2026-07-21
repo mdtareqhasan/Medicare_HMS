@@ -44,6 +44,7 @@ public class SecurityConfig {
     @Autowired
     private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
+    // Creates the DAO authentication provider used for username/password login.
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -52,16 +53,19 @@ public class SecurityConfig {
         return authProvider;
     }
 
+    // Exposes Spring Security's authentication manager bean.
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
+    // Creates the BCrypt password encoder bean.
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // Creates the shared Jackson object mapper bean.
     @Bean
     public ObjectMapper objectMapper() {
         return new ObjectMapper()
@@ -69,6 +73,7 @@ public class SecurityConfig {
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
+    // Defines HTTP security rules, JWT filtering, OAuth2 login, and CORS behavior.
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -83,6 +88,8 @@ public class SecurityConfig {
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/doctor-availability/**").permitAll()
+                        .requestMatchers("/api/users/doctors").permitAll()
+                        .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated())
                 .oauth2Login(oauth -> oauth.successHandler(oAuth2LoginSuccessHandler));
@@ -93,6 +100,7 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // Defines allowed frontend origins, headers, and methods for CORS.
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -111,4 +119,5 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
 }

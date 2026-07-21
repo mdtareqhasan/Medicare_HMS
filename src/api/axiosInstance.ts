@@ -62,7 +62,9 @@ axiosInstance.interceptors.response.use(
       status === 401 &&
       !isLoggingOut &&
       !url.includes('/api/auth/') &&
-      !url.includes('/users/me')
+      !url.includes('/users/me') &&
+      !url.includes('/users/doctors') &&
+      !url.includes('/v1/upload')
     ) {
       isLoggingOut = true;
       console.warn(`[axios] 401 Unauthorized — session may have expired: ${url}`);

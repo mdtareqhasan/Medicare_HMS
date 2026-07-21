@@ -37,7 +37,10 @@ public class AppointmentService {
     @Autowired
     private NotificationService notificationService;
 
+    // Books an appointment after validating the selected doctor, patient, and time
+    // slot.
     public Appointment bookAppointment(Long doctorId, Long patientId, LocalDateTime appointmentDate, String notes,
+            String consultationType, String visitType, String urgency, String department, List<String> symptoms,
             UserDetailsImpl currentUser) {
         if (appointmentDate.isBefore(LocalDateTime.now())) {
             throw new RuntimeException("Cannot book appointment in the past");
@@ -97,11 +100,35 @@ public class AppointmentService {
         appointment.setAppointmentDate(appointmentDate);
         appointment.setStatus(AppointmentStatus.UPCOMING);
         appointment.setNotes(notes);
+        appointment.setConsultationType(consultationType);
+        appointment.setVisitType(visitType);
+        appointment.setUrgency(urgency);
+        appointment.setDepartment(department);
+        appointment.setSymptoms(symptoms == null ? new ArrayList<>() : new ArrayList<>(symptoms));
         appointment.setCreatedAt(LocalDateTime.now());
 
-        return appointmentRepository.save(appointment);
+        Appointment saved = appointmentRepository.save(appointment);
+
+        String patientName = getDisplayName(patient);
+        String doctorName = getDisplayName(doctor);
+        String formattedDate = appointmentDate.toString();
+
+        notificationService.createNotification(doctor.getUsername(),
+                "New appointment booked",
+                String.format("%s booked an appointment with you on %s", patientName, formattedDate),
+                "info",
+                "/dashboard/appointments");
+
+        notificationService.createNotification(patient.getUsername(),
+                "Appointment booked",
+                String.format("Your appointment with Dr. %s has been booked for %s", doctorName, formattedDate),
+                "info",
+                "/dashboard/appointments");
+
+        return saved;
     }
 
+    // Moves an appointment to a new date and time.
     public Appointment rescheduleAppointment(Long appointmentId, LocalDateTime newDate) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
@@ -156,6 +183,7 @@ public class AppointmentService {
         return saved;
     }
 
+    // Completes an appointment and records the doctor's visit notes.
     public Appointment completeAppointment(Long appointmentId, String diagnosis, String prescription, String notes,
             String followUpDate) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
@@ -194,6 +222,7 @@ public class AppointmentService {
         return saved;
     }
 
+    // Returns a readable display name for a user.
     private String getDisplayName(User user) {
         if (user == null)
             return "Unknown";
@@ -207,6 +236,7 @@ public class AppointmentService {
         return user.getUsername();
     }
 
+    // Calculates open appointment slots for a doctor on a specific date.
     public List<String> getAvailableSlots(Long doctorId, LocalDate date) {
         User doctor = userRepository.findById(doctorId)
                 .orElseThrow(() -> new RuntimeException("Doctor not found"));
@@ -279,6 +309,7 @@ public class AppointmentService {
         return slots;
     }
 
+    // Checks whether the patient already has an appointment at the requested time.
     private boolean hasPatientConflictingAppointment(User patient, LocalDateTime appointmentDate) {
         LocalDateTime startRange = appointmentDate.minusMinutes(30);
         LocalDateTime endRange = appointmentDate.plusMinutes(30);
@@ -289,6 +320,7 @@ public class AppointmentService {
         return conflictingAppointments.stream().anyMatch(a -> a.getStatus() != AppointmentStatus.CANCELLED);
     }
 
+    // Returns the appointment schedule for the selected doctor.
     public List<Appointment> getDoctorSchedule(Long doctorId) {
         User doctor = userRepository.findById(doctorId)
                 .orElseThrow(() -> new RuntimeException("Doctor not found"));
@@ -296,6 +328,7 @@ public class AppointmentService {
         return appointmentRepository.findByDoctor(doctor);
     }
 
+    // Returns appointments visible to the current user based on their role.
     public List<Appointment> getAppointments(UserDetailsImpl currentUser) {
         User user = userRepository.findByUsername(currentUser.getUsername())
                 .orElseThrow(() -> new RuntimeException("Current user not found"));
@@ -310,6 +343,7 @@ public class AppointmentService {
         return new ArrayList<>();
     }
 
+    // Returns appointments for the current or selected patient.
     public List<Appointment> getPatientAppointments() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User patient = userRepository.findByUsername(username)
@@ -318,16 +352,19 @@ public class AppointmentService {
         return appointmentRepository.findByPatient(patient);
     }
 
+    // Returns appointments for the current or selected patient.
     public List<Appointment> getPatientAppointments(Long patientId) {
         User patient = userRepository.findById(patientId)
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
         return appointmentRepository.findByPatient(patient);
     }
 
+    // Returns every appointment for admin views.
     public List<Appointment> getAllAppointments() {
         return appointmentRepository.findAll();
     }
 
+    // Updates the appointment status and applies related workflow side effects.
     public Appointment updateAppointmentStatus(Long appointmentId, AppointmentStatus status) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
@@ -365,6 +402,7 @@ public class AppointmentService {
         return appointmentRepository.save(appointment);
     }
 
+    // Cancels an appointment after checking the current user's permissions.
     public Appointment cancelAppointment(Long appointmentId, User currentUser) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
@@ -411,6 +449,8 @@ public class AppointmentService {
         return saved;
     }
 
+    // Checks whether the doctor has availability covering the requested appointment
+    // time.
     private boolean isDoctorAvailable(User doctor, LocalDateTime appointmentDate) {
         DayOfWeek dayOfWeek = DayOfWeek.valueOf(appointmentDate.getDayOfWeek().name());
         LocalTime appointmentTime = appointmentDate.toLocalTime();
@@ -446,6 +486,7 @@ public class AppointmentService {
         return false;
     }
 
+    // Checks whether the doctor already has an appointment at the requested time.
     private boolean hasConflictingAppointment(User doctor, LocalDateTime appointmentDate) {
         int slotDuration = getSlotDurationForDoctor(doctor, appointmentDate);
         LocalDateTime startRange = appointmentDate.minusMinutes(slotDuration);
@@ -458,6 +499,7 @@ public class AppointmentService {
                 .anyMatch(a -> a.getStatus() != AppointmentStatus.CANCELLED);
     }
 
+    // Returns the configured slot duration for the doctor and day.
     private int getSlotDurationForDoctor(User doctor, LocalDateTime appointmentDate) {
         DayOfWeek dayOfWeek = DayOfWeek.valueOf(appointmentDate.getDayOfWeek().name());
         List<DoctorAvailability> availabilities = doctorAvailabilityRepository
@@ -470,4 +512,5 @@ public class AppointmentService {
         }
         return 30;
     }
+
 }

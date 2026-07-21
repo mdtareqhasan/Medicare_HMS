@@ -19,6 +19,7 @@ public class PrescriptionController {
     @Autowired
     private PrescriptionService prescriptionService;
 
+    // Creates a prescription without linking it to an appointment.
     @PostMapping
     @PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
     public ResponseEntity<PrescriptionResponse> createPrescription(
@@ -36,6 +37,7 @@ public class PrescriptionController {
         return ResponseEntity.ok(response);
     }
 
+    // Returns patient prescriptions data.
     @GetMapping("/patient/{patientId}")
     @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','PHARMACIST','LAB_TECHNICIAN','PATIENT')")
     public ResponseEntity<List<PrescriptionResponse>> getPatientPrescriptions(
@@ -54,12 +56,14 @@ public class PrescriptionController {
         return ResponseEntity.ok(list);
     }
 
+    // Returns prescriptions waiting to be dispensed.
     @GetMapping("/pending")
     @PreAuthorize("hasAnyRole('ADMIN','PHARMACIST')")
     public ResponseEntity<List<PrescriptionResponse>> getPendingPrescriptions() {
         return ResponseEntity.ok(prescriptionService.listPendingPrescriptions());
     }
 
+    // Marks a prescription as dispensed and returns the updated response.
     @PutMapping("/{id}/dispense")
     @PreAuthorize("hasAnyRole('ADMIN','PHARMACIST')")
     public ResponseEntity<PrescriptionResponse> dispensePrescription(@PathVariable Long id) {
@@ -67,6 +71,7 @@ public class PrescriptionController {
         return ResponseEntity.ok(response);
     }
 
+    // Returns doctor prescriptions data.
     @GetMapping("/doctor")
     @PreAuthorize("hasAnyRole('ADMIN','DOCTOR')")
     public ResponseEntity<List<PrescriptionResponse>> getDoctorPrescriptions(
@@ -74,6 +79,7 @@ public class PrescriptionController {
         return ResponseEntity.ok(prescriptionService.listPrescriptionsForDoctor(currentUser.getId()));
     }
 
+    // Returns prescriptions that have already been dispensed.
     @GetMapping("/dispensed")
     @PreAuthorize("hasAnyRole('ADMIN','PHARMACIST')")
     public ResponseEntity<List<PrescriptionResponse>> getDispensedPrescriptions() {

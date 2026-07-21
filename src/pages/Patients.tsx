@@ -86,7 +86,7 @@ export default function Patients() {
     setLoading(true);
     try {
       const data = await userService.getPatients();
-      const patientList: PatientWithDoctor[] = data.map((u) => ({
+      const patientList: PatientWithDoctor[] = data.map((u: any) => ({
         id: u.id.toString(),
         user_id: u.id.toString(),
         full_name: u.username,
@@ -94,7 +94,7 @@ export default function Patients() {
         gender: "",
         date_of_birth: null,
         address: "",
-        avatar_url: "",
+        avatar_url: u.avatarUrl || "",
         age: null,
         blood_group: null,
         emergency_contact_name: null,

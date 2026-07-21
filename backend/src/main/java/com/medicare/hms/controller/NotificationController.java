@@ -19,12 +19,14 @@ public class NotificationController {
     @Autowired
     private NotificationService notificationService;
 
+    // Returns notifications for the current user.
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public List<Notification> getNotifications(@AuthenticationPrincipal UserDetailsImpl currentUser) {
         return notificationService.getUserNotifications(currentUser.getUsername());
     }
 
+    // Marks every notification for a user as read.
     @PutMapping("/mark-all-read")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, String>> markAllRead(@AuthenticationPrincipal UserDetailsImpl currentUser) {
@@ -32,6 +34,7 @@ public class NotificationController {
         return ResponseEntity.ok(Map.of("message", "Marked all as read"));
     }
 
+    // Marks a single notification as read for a user.
     @PutMapping("/{id}/mark-read")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, String>> markRead(@PathVariable Long id,

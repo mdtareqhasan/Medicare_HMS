@@ -42,6 +42,9 @@ function fmtDate(d: string | undefined | null) {
   try { return format(parseISO(d), "dd MMM yyyy"); } catch { return d; }
 }
 
+const reportTestName = (report: LabReportItem) => report.testName || report.labTest?.testName || "Unknown Test";
+const reportFileUrl = (report: LabReportItem) => report.fileUrl || report.resultUrl;
+
 // ── Component ────────────────────────────────────────────────────
 export default function Laboratory() {
   const { user, role } = useAuth();
@@ -57,7 +60,8 @@ export default function Laboratory() {
   const [resultFileUrl, setResultFileUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const canManage = role === "admin" || role === "lab_staff" || role === "LAB_TECHNICIAN" || role === "doctor";
+  // Doctors can review the tests they ordered, but only lab staff/admin may change a result.
+  const canManage = role === "admin" || role === "lab_staff";
   const isAdminOrLab = role === "admin" || role === "lab_staff";
   const isDoctor = role === "doctor";
 
@@ -144,15 +148,20 @@ export default function Laboratory() {
   };
 
   // ── Filtered lists ─────────────────────────────────────────
-  // Since backend doesn't have status field, we'll show all reports
-  const pendingReports = Array.isArray(reports) ? reports.slice(0, Math.ceil(reports.length / 2)) : [];
-  const completedReports = Array.isArray(reports) ? reports.slice(Math.ceil(reports.length / 2)) : [];
+  const isCompleted = (r: LabReportItem) =>
+    r.status === "COMPLETED" || !!r.result;
+  const pendingReports = Array.isArray(reports)
+    ? reports.filter((r) => !isCompleted(r))
+    : [];
+  const completedReports = Array.isArray(reports)
+    ? reports.filter((r) => isCompleted(r))
+    : [];
 
   const searchedReports = Array.isArray(allReports) ? allReports.filter((r) => {
     if (!search) return true;
     const q = search.toLowerCase();
     return (
-      (r.testName || "").toLowerCase().includes(q) ||
+      reportTestName(r).toLowerCase().includes(q) ||
       (r.patient?.username || "").toLowerCase().includes(q) ||
       (r.doctor?.username || "").toLowerCase().includes(q)
     );
@@ -173,15 +182,19 @@ export default function Laboratory() {
         <div>
           <p className="text-sm font-bold flex items-center gap-1.5">
             <FlaskConical className="h-3.5 w-3.5 text-purple-500" />
-            {r.testName || "Unknown Test"}
+            {reportTestName(r)}
           </p>
           <p className="text-xs text-muted-foreground mt-0.5">
             Patient: {r.patient?.username || "—"} • Dr. {r.doctor?.username || "—"}
           </p>
           <p className="text-xs text-muted-foreground">{fmtDate(r.testDate || r.createdAt)}</p>
         </div>
-        <Badge className="text-[10px] bg-emerald-100 text-emerald-700 border-0">
-          {r.result ? "Completed" : "Pending"}
+        <Badge className={`text-[10px] border-0 ${
+          isCompleted(r) ? "bg-emerald-100 text-emerald-700" :
+          r.status === "IN_PROGRESS" ? "bg-blue-100 text-blue-700" :
+          "bg-amber-100 text-amber-700"
+        }`}>
+          {statusLabel(r.status || (r.result ? "COMPLETED" : "PENDING"))}
         </Badge>
       </div>
 
@@ -191,8 +204,8 @@ export default function Laboratory() {
         </div>
       )}
 
-      {r.fileUrl && (
-        <a href={r.fileUrl} target="_blank" rel="noopener noreferrer"
+      {reportFileUrl(r) && (
+        <a href={reportFileUrl(r)} target="_blank" rel="noopener noreferrer"
           className="text-xs text-blue-600 underline flex items-center gap-1 mb-3">
           <FileText className="h-3 w-3" /> View Report File
         </a>
@@ -323,18 +336,22 @@ export default function Laboratory() {
                     </TableRow>
                   ) : searchedReports.map((r) => (
                     <TableRow key={r.id} className="hover:bg-muted/20">
-                      <TableCell className="font-medium">{r.testName || "—"}</TableCell>
+                      <TableCell className="font-medium">{reportTestName(r)}</TableCell>
                       <TableCell>{r.patient?.username || "—"}</TableCell>
                       <TableCell className="text-muted-foreground">Dr. {r.doctor?.username || "—"}</TableCell>
                       <TableCell className="text-xs text-muted-foreground">{fmtDate(r.testDate || r.createdAt)}</TableCell>
                       <TableCell>
-                        <Badge className="text-[10px] bg-emerald-100 text-emerald-700 border-0">
-                          {r.result ? "Completed" : "Pending"}
+                        <Badge className={`text-[10px] border-0 ${
+                          isCompleted(r) ? "bg-emerald-100 text-emerald-700" :
+                          r.status === "IN_PROGRESS" ? "bg-blue-100 text-blue-700" :
+                          "bg-amber-100 text-amber-700"
+                        }`}>
+                          {statusLabel(r.status || (r.result ? "COMPLETED" : "PENDING"))}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-xs max-w-[200px] truncate">
-                        {r.result || (r.fileUrl ? (
-                          <a href={r.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">View</a>
+                        {r.result || (reportFileUrl(r) ? (
+                          <a href={reportFileUrl(r)} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">View</a>
                         ) : "—")}
                       </TableCell>
                     </TableRow>
@@ -357,7 +374,7 @@ export default function Laboratory() {
           {submitTarget && (
             <div className="space-y-3">
               <div className="p-3 rounded-xl bg-muted/30 text-sm">
-                <p className="font-semibold">{submitTarget.testName || "Test"}</p>
+                <p className="font-semibold">{reportTestName(submitTarget)}</p>
                 <p className="text-xs text-muted-foreground">Patient: {submitTarget.patient?.username || "—"}</p>
               </div>
               <div>

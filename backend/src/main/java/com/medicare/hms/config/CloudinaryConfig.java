@@ -20,6 +20,7 @@ public class CloudinaryConfig {
     @Value("${cloudinary.api_secret}")
     private String apiSecret;
 
+    // Builds the Cloudinary client bean from configured credentials.
     @Bean
     public Cloudinary cloudinary() {
         Map<String, String> config = new HashMap<>();

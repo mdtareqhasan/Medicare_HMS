@@ -21,10 +21,12 @@ public class BillingService {
     @Autowired
     private UserRepository userRepository;
 
+    // Returns all billing invoices from storage.
     public List<BillingInvoice> getAllInvoices() {
         return billingInvoiceRepository.findAll();
     }
 
+    // Creates an invoice by calculating the total charge for patient services.
     public BillingInvoice createInvoice(Long patientId, Long doctorId, BigDecimal doctorFee, BigDecimal labFee,
             BigDecimal pharmacyFee) {
         User patient = userRepository.findById(patientId).orElseThrow(() -> new RuntimeException("Patient not found"));
@@ -47,6 +49,7 @@ public class BillingService {
         return billingInvoiceRepository.save(invoice);
     }
 
+    // Marks an invoice as paid.
     public BillingInvoice markPaid(Long invoiceId) {
         BillingInvoice invoice = billingInvoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new RuntimeException("Invoice not found"));
@@ -55,6 +58,7 @@ public class BillingService {
         return billingInvoiceRepository.save(invoice);
     }
 
+    // Generates the next invoice number from the latest saved invoice.
     private String generateInvoiceNumber() {
         String prefix = "INV-";
         String uuid = UUID.randomUUID().toString().substring(0, 8).toUpperCase();

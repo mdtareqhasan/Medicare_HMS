@@ -23,10 +23,12 @@ public class AIChatbotController {
 
     private final AIChatbotService aiChatbotService;
 
+    // Injects the AI chatbot service used by the chat endpoint.
     public AIChatbotController(AIChatbotService aiChatbotService) {
         this.aiChatbotService = aiChatbotService;
     }
 
+    // Sends the user message and recent history to the AI service and returns the reply.
     @PostMapping("/chat")
     public ResponseEntity<?> chat(@Valid @RequestBody AIChatRequest request) {
         try {

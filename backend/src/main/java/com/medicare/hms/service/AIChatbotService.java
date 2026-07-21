@@ -39,6 +39,7 @@ public class AIChatbotService {
     @Value("${groq.model:llama-3.1-8b-instant}")
     private String groqModel;
 
+    // Injects dependencies used to call the AI provider and build doctor context.
     public AIChatbotService(DoctorService doctorService,
             DoctorAvailabilityRepository doctorAvailabilityRepository,
             RestClient.Builder restClientBuilder) {
@@ -50,6 +51,7 @@ public class AIChatbotService {
         this.restClient = restClientBuilder.requestFactory(requestFactory).build();
     }
 
+    // Sends the user message and recent history to the AI service and returns the reply.
     @Transactional(readOnly = true)
     public String chat(String message, String role, List<ChatHistoryMessage> history) {
         if (message == null || message.isBlank()) {
@@ -104,6 +106,7 @@ public class AIChatbotService {
         }
     }
 
+    // Builds a helpful fallback reply when the external AI service is unavailable.
     private String buildOfflineFallback(String message, RestClientException ex) {
         String lowerMessage = message == null ? "" : message.toLowerCase();
         String reason = getRootCauseMessage(ex);
@@ -153,6 +156,7 @@ public class AIChatbotService {
                 """.formatted(reason);
     }
 
+    // Walks an exception chain to find the deepest error message.
     private String getRootCauseMessage(Throwable throwable) {
         Throwable cursor = throwable;
         while (cursor.getCause() != null) {
@@ -165,6 +169,7 @@ public class AIChatbotService {
         return cursor.getClass().getSimpleName() + (message == null || message.isBlank() ? "" : ": " + message);
     }
 
+    // Creates a readable error message from a Groq API failure response.
     private String buildGroqErrorMessage(int statusCode, String responseBody) {
         String body = responseBody == null ? "" : responseBody.toLowerCase();
         if (statusCode == 401 || body.contains("invalid_api_key") || body.contains("api key")) {
@@ -182,6 +187,7 @@ public class AIChatbotService {
         return "Groq returned an error while generating the assistant response. Check the backend logs for details.";
     }
 
+    // Keeps only the most recent chat history entries sent to the model.
     private List<ChatHistoryMessage> trimHistory(List<ChatHistoryMessage> history) {
         if (history == null || history.isEmpty()) {
             return List.of();
@@ -190,6 +196,7 @@ public class AIChatbotService {
         return history.subList(fromIndex, history.size());
     }
 
+    // Builds the role-aware system prompt used for AI chat replies.
     private String buildSystemPrompt(String role) {
         return """
                 You are CureBot, the AI care assistant for Medicare Cure Hub. Be concise, friendly, and practical.
@@ -225,6 +232,7 @@ public class AIChatbotService {
                 """.formatted(normalizeRole(role), buildDoctorContext());
     }
 
+    // Normalizes a frontend role value into the backend role name format.
     private String normalizeRole(String role) {
         if (role == null || role.isBlank()) {
             return "guest";
@@ -232,6 +240,7 @@ public class AIChatbotService {
         return role.toLowerCase().replace("role_", "").replace("_", " ");
     }
 
+    // Builds doctor and availability context for the AI assistant prompt.
     private String buildDoctorContext() {
         List<User> doctors = doctorService.getAllDoctors();
         if (doctors.isEmpty()) {
@@ -262,6 +271,7 @@ public class AIChatbotService {
         return String.join("\n", lines);
     }
 
+    // Returns a readable display name for a user.
     private String getDisplayName(User user) {
         Profile profile = user.getProfile();
         if (profile != null && profile.getFirstName() != null && !profile.getFirstName().isBlank()) {
@@ -290,6 +300,7 @@ public class AIChatbotService {
     }
 
     public static class AIChatbotException extends RuntimeException {
+        // Wraps lower-level AI chatbot failures in a domain-specific runtime exception.
         public AIChatbotException(String message, Throwable cause) {
             super(message, cause);
         }

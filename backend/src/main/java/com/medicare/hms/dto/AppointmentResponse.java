@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -19,4 +20,9 @@ public class AppointmentResponse {
     private String status;
     private String notes;
     private LocalDateTime createdAt;
+    private String consultationType;
+    private String visitType;
+    private String urgency;
+    private String department;
+    private List<String> symptoms;
 }

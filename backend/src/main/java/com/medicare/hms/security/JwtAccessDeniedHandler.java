@@ -16,6 +16,7 @@ import java.util.Map;
 @Component
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
+    // Sends a JSON 403 response when an authenticated user lacks permission.
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
             AccessDeniedException accessDeniedException) throws IOException, ServletException {

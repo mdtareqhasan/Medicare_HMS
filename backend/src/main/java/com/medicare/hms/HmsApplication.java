@@ -13,10 +13,12 @@ import java.time.LocalDateTime;
 
 @SpringBootApplication
 public class HmsApplication {
+    // Starts the Spring Boot application.
     public static void main(String[] args) {
         SpringApplication.run(HmsApplication.class, args);
     }
 
+    // Seeds the default admin user when it does not already exist.
     @Bean
     public CommandLineRunner initAdmin(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {

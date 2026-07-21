@@ -33,6 +33,7 @@ public class ProfileController {
     @Autowired
     private CloudinaryService cloudinaryService;
 
+    // Returns the current user's profile details.
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getProfile() {
@@ -55,16 +56,25 @@ public class ProfileController {
         response.put("lastName", profile.getLastName() != null ? profile.getLastName() : "");
         response.put("phone", profile.getPhone() != null ? profile.getPhone() : "");
         response.put("address", profile.getAddress() != null ? profile.getAddress() : "");
+        response.put("dateOfBirth", profile.getDateOfBirth() != null ? profile.getDateOfBirth().toString() : "");
         response.put("gender", profile.getGender() != null ? profile.getGender().name().toLowerCase() : "");
         response.put("bloodGroup", profile.getBloodGroup() != null ? profile.getBloodGroup() : "");
         response.put("emergencyName", profile.getEmergencyName() != null ? profile.getEmergencyName() : "");
         response.put("emergencyPhone", profile.getEmergencyPhone() != null ? profile.getEmergencyPhone() : "");
         response.put("emergencyRelation", profile.getEmergencyRelation() != null ? profile.getEmergencyRelation() : "");
         response.put("avatarUrl", profile.getAvatarUrl() != null ? profile.getAvatarUrl() : "");
+        response.put("specialization", profile.getSpecialization() != null ? profile.getSpecialization() : "");
+        response.put("degrees", profile.getDegrees() != null ? profile.getDegrees() : "");
+        response.put("education", profile.getEducation() != null ? profile.getEducation() : "");
+        response.put("experienceYears", profile.getExperienceYears());
+        response.put("experienceDetails", profile.getExperienceDetails() != null ? profile.getExperienceDetails() : "");
+        response.put("insuranceProvider", profile.getInsuranceProvider() != null ? profile.getInsuranceProvider() : "");
+        response.put("insurancePolicyNumber", profile.getInsurancePolicyNumber() != null ? profile.getInsurancePolicyNumber() : "");
 
         return ResponseEntity.ok(response);
     }
 
+    // Updates profile details from the submitted request body.
     @PutMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> updateProfile(@RequestBody Map<String, Object> body) {
@@ -86,6 +96,17 @@ public class ProfileController {
         profile.setLastName((String) body.getOrDefault("lastName", profile.getLastName()));
         profile.setPhone((String) body.getOrDefault("phone", profile.getPhone()));
         profile.setAddress((String) body.getOrDefault("address", profile.getAddress()));
+        profile.setBloodGroup((String) body.getOrDefault("bloodGroup", profile.getBloodGroup()));
+        profile.setEmergencyName((String) body.getOrDefault("emergencyName", profile.getEmergencyName()));
+        profile.setEmergencyPhone((String) body.getOrDefault("emergencyPhone", profile.getEmergencyPhone()));
+        profile.setEmergencyRelation((String) body.getOrDefault("emergencyRelation", profile.getEmergencyRelation()));
+        profile.setAvatarUrl((String) body.getOrDefault("avatarUrl", profile.getAvatarUrl()));
+        profile.setSpecialization((String) body.getOrDefault("specialization", profile.getSpecialization()));
+        profile.setDegrees((String) body.getOrDefault("degrees", profile.getDegrees()));
+        profile.setEducation((String) body.getOrDefault("education", profile.getEducation()));
+        profile.setExperienceDetails((String) body.getOrDefault("experienceDetails", profile.getExperienceDetails()));
+        profile.setInsuranceProvider((String) body.getOrDefault("insuranceProvider", profile.getInsuranceProvider()));
+        profile.setInsurancePolicyNumber((String) body.getOrDefault("insurancePolicyNumber", profile.getInsurancePolicyNumber()));
 
         if (body.get("gender") != null) {
             try {
@@ -95,10 +116,35 @@ public class ProfileController {
             }
         }
 
+        if (body.containsKey("dateOfBirth")) {
+            String dateOfBirth = (String) body.get("dateOfBirth");
+            try {
+                profile.setDateOfBirth(dateOfBirth == null || dateOfBirth.isBlank() ? null : LocalDate.parse(dateOfBirth));
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Date of birth must be a valid date"));
+            }
+        }
+
+        if (body.containsKey("experienceYears")) {
+            Object experienceYears = body.get("experienceYears");
+            if (experienceYears == null || experienceYears.toString().isBlank()) {
+                profile.setExperienceYears(null);
+            } else if (experienceYears instanceof Number number) {
+                profile.setExperienceYears(number.intValue());
+            } else {
+                try {
+                    profile.setExperienceYears(Integer.parseInt(experienceYears.toString()));
+                } catch (NumberFormatException e) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "Experience years must be a number"));
+                }
+            }
+        }
+
         profileRepository.save(profile);
         return ResponseEntity.ok(Map.of("message", "Profile updated successfully"));
     }
 
+    // Uploads and saves a new avatar for the current profile.
     @PutMapping("/avatar")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> updateAvatar(@RequestParam("file") MultipartFile file) {

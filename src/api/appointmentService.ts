@@ -23,6 +23,11 @@ export interface AppointmentRequest {
   patientId?: number;
   appointmentDate: string;
   notes?: string;
+  consultationType?: string;
+  visitType?: string;
+  urgency?: string;
+  department?: string;
+  symptoms?: string[];
 }
 
 export const appointmentService = {

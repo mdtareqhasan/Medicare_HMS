@@ -3,12 +3,15 @@ import axiosInstance from "./axiosInstance";
 export interface LabReportItem {
   id: number;
   testName?: string;
+  labTest?: { id: number; testName: string; description?: string };
   patient?: { id: number; username: string };
   doctor?: { id: number; username: string };
   patientId?: number;
   doctorId?: number;
   result?: string | null;
   fileUrl?: string | null;
+  resultUrl?: string | null;
+  status?: string;
   testDate?: string;
   createdAt?: string;
   updatedAt?: string;

@@ -55,7 +55,8 @@ public class AppointmentController {
             }
 
             Appointment appointment = appointmentService.bookAppointment(request.getDoctorId(), patientId,
-                    request.getAppointmentDate(), request.getNotes(), currentUser);
+                    request.getAppointmentDate(), request.getNotes(), request.getConsultationType(),
+                    request.getVisitType(), request.getUrgency(), request.getDepartment(), request.getSymptoms(), currentUser);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(toDto(appointment));
         } catch (RuntimeException e) {
@@ -77,6 +78,11 @@ public class AppointmentController {
                     request.getPatientId(),
                     request.getAppointmentDate(),
                     request.getNotes(),
+                    request.getConsultationType(),
+                    request.getVisitType(),
+                    request.getUrgency(),
+                    request.getDepartment(),
+                    request.getSymptoms(),
                     currentUser);
             return ResponseEntity.status(HttpStatus.CREATED).body(toDto(appointment));
         } catch (RuntimeException e) {
@@ -86,19 +92,27 @@ public class AppointmentController {
         }
     }
 
+    // Converts an appointment entity into the API response DTO.
     private AppointmentResponse toDto(Appointment appointment) {
-        return new AppointmentResponse(
-                appointment.getId(),
-                appointment.getPatient().getId(),
-                appointment.getPatient().getUsername(),
-                appointment.getDoctor().getId(),
-                appointment.getDoctor().getUsername(),
-                appointment.getAppointmentDate(),
-                appointment.getStatus().name().toLowerCase(),
-                appointment.getNotes(),
-                appointment.getCreatedAt());
+        AppointmentResponse response = new AppointmentResponse();
+        response.setId(appointment.getId());
+        response.setPatientId(appointment.getPatient().getId());
+        response.setPatientName(appointment.getPatient().getUsername());
+        response.setDoctorId(appointment.getDoctor().getId());
+        response.setDoctorName(appointment.getDoctor().getUsername());
+        response.setAppointmentDate(appointment.getAppointmentDate());
+        response.setStatus(appointment.getStatus().name().toLowerCase());
+        response.setNotes(appointment.getNotes());
+        response.setCreatedAt(appointment.getCreatedAt());
+        response.setConsultationType(appointment.getConsultationType());
+        response.setVisitType(appointment.getVisitType());
+        response.setUrgency(appointment.getUrgency());
+        response.setDepartment(appointment.getDepartment());
+        response.setSymptoms(appointment.getSymptoms());
+        return response;
     }
 
+    // Converts a list of appointment entities into response DTOs.
     private List<AppointmentResponse> toDtoList(List<Appointment> appointments) {
         return appointments.stream().map(this::toDto).toList();
     }

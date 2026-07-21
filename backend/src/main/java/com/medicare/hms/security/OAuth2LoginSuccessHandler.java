@@ -36,6 +36,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     @Autowired
     private JwtUtils jwtUtils;
 
+    // Handles successful OAuth2 login by creating a local user if needed and redirecting with a JWT.
     @Value("${app.frontend.url:http://localhost:5173}")
     private String frontendUrl;
 

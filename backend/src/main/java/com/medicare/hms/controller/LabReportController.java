@@ -171,7 +171,7 @@ public class LabReportController {
      * Lab technician marks a test as in-progress.
      */
     @PutMapping("/reports/{reportId}/start")
-    @PreAuthorize("hasRole('LAB_TECHNICIAN')")
+    @PreAuthorize("hasAnyRole('ADMIN','LAB_TECHNICIAN')")
     public ResponseEntity<?> startTest(@PathVariable Long reportId) {
         try {
             return ResponseEntity.ok(labService.startTest(reportId));
@@ -190,7 +190,7 @@ public class LabReportController {
      * Lab technician submits test results.
      */
     @PutMapping("/reports/{reportId}/submit")
-    @PreAuthorize("hasRole('LAB_TECHNICIAN')")
+    @PreAuthorize("hasAnyRole('ADMIN','LAB_TECHNICIAN')")
     public ResponseEntity<?> submitResult(
             @PathVariable Long reportId,
             @RequestBody Map<String, String> payload) {

@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface LabTestRepository extends JpaRepository<LabTest, Long> {
+    // Finds a lab test by name without case sensitivity.
     java.util.Optional<LabTest> findByTestNameIgnoreCase(String testName);
 }

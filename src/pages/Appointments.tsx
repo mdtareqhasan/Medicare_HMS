@@ -342,6 +342,11 @@ export default function Appointments() {
                           <p className="text-xs text-muted-foreground mt-0.5">
                             Patient: {appt.patientName} • Dr. {appt.doctorName}
                           </p>
+                          {role === "doctor" && appt.symptoms && appt.symptoms.length > 0 && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              <span className="font-semibold text-foreground">Patient concerns:</span> {appt.symptoms.join(", ")}
+                            </p>
+                          )}
                           {appt.notes && <p className="text-xs text-muted-foreground mt-1 italic">{appt.notes}</p>}
                           {/* View button for appointment - opens prescription modal */}
                           {role === "doctor" && isActive && (

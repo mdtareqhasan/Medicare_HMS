@@ -32,6 +32,13 @@ interface ProfileData {
   emergencyPhone?: string | null;
   emergencyRelation?: string | null;
   avatarUrl?: string | null;
+  specialization?: string | null;
+  degrees?: string | null;
+  education?: string | null;
+  experienceYears?: number | null;
+  experienceDetails?: string | null;
+  insuranceProvider?: string | null;
+  insurancePolicyNumber?: string | null;
   createdAt?: string | null;
 }
 
@@ -115,6 +122,13 @@ export default function Profile() {
     setEmergencyName(p.emergencyName || "");
     setEmergencyPhone(p.emergencyPhone || "");
     setEmergencyRelation(p.emergencyRelation || "");
+    setSpecialization(p.specialization || "");
+    setDegrees(p.degrees || "");
+    setEducation(p.education || "");
+    setExperienceYears(p.experienceYears?.toString() || "");
+    setExperienceDetails(p.experienceDetails || "");
+    setInsuranceProvider(p.insuranceProvider || "");
+    setInsurancePolicyNumber(p.insurancePolicyNumber || "");
   };
 
   const handleSave = async () => {
@@ -134,6 +148,13 @@ export default function Profile() {
         emergencyPhone: emergencyPhone || null,
         emergencyRelation: emergencyRelation || null,
         avatarUrl: profile?.avatarUrl || null,
+        specialization: specialization || null,
+        degrees: degrees || null,
+        education: education || null,
+        experienceYears: experienceYears ? Number(experienceYears) : null,
+        experienceDetails: experienceDetails || null,
+        insuranceProvider: insuranceProvider || null,
+        insurancePolicyNumber: insurancePolicyNumber || null,
       });
 
       toast.success("Profile saved successfully!");

@@ -18,11 +18,13 @@ public class PrescriptionResponse {
     public LocalDateTime updatedAt;
     public List<String> labTests;
 
+    // Creates a prescription response when there is no linked appointment id.
     public PrescriptionResponse(Long id, Long patientId, Long doctorId, String doctorName, String medicines, String notes,
             String status, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this(id, patientId, doctorId, doctorName, medicines, notes, status, null, createdAt, updatedAt);
     }
 
+    // Creates a prescription response with an optional linked appointment id.
     public PrescriptionResponse(Long id, Long patientId, Long doctorId, String doctorName, String medicines, String notes,
             String status, Long appointmentId, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;

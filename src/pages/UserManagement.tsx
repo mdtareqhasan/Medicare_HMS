@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Table,
   TableBody,
@@ -44,6 +45,13 @@ import {
   Trash2,
   Edit,
   UserPlus,
+  Mail,
+  Phone,
+  Stethoscope,
+  Award,
+  MapPin,
+  GraduationCap,
+  Clock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { userService } from "@/api/userService";
@@ -95,6 +103,8 @@ export default function UserManagement() {
   const [loading, setLoading] = useState(true);
   const [editUser, setEditUser] = useState<UserWithRole | null>(null);
   const [deleteUserTarget, setDeleteUserTarget] = useState<UserWithRole | null>(null);
+  const [detailUser, setDetailUser] = useState<any>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
   const [newRole, setNewRole] = useState<AppRole>("patient");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -105,12 +115,12 @@ export default function UserManagement() {
     setLoading(true);
     try {
       const data = await userService.getAllUsers();
-      const userWithRoles: UserWithRole[] = data.map((item) => ({
+      const userWithRoles: UserWithRole[] = data.map((item: any) => ({
         user_id: item.email || "N/A",
         full_name: item.username || "Unnamed",
         phone: null,
         gender: null,
-        avatar_url: null,
+        avatar_url: item.avatarUrl || null,
         created_at: new Date().toISOString(),
         role: (item.role?.toLowerCase() as AppRole) || "patient",
         role_id: item.id.toString(),
@@ -289,10 +299,19 @@ export default function UserManagement() {
             </TableHeader>
             <TableBody>
               {filtered.map((user) => (
-                <TableRow key={user.role_id}>
-                  <TableCell>
+                <TableRow key={user.role_id} className="cursor-pointer hover:bg-muted/50">
+                  <TableCell onClick={() => { setDetailUser(user); setDetailLoading(true); userService.getUserById(Number(user.role_id)).then(setDetailUser).catch(() => setDetailUser(user)).finally(() => setDetailLoading(false)); }}>
                     <div className="flex items-center gap-3">
-                      <UserCircle className="h-8 w-8 text-muted-foreground" />
+                      {user.avatar_url ? (
+                        <Avatar className="h-8 w-8 shrink-0 ring-2 ring-primary/10">
+                          <AvatarImage src={user.avatar_url} alt={user.full_name || ""} />
+                          <AvatarFallback className="bg-gradient-to-br from-secondary to-primary text-white text-xs font-bold">
+                            {user.full_name ? user.full_name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) : "?"}
+                          </AvatarFallback>
+                        </Avatar>
+                      ) : (
+                        <UserCircle className="h-8 w-8 text-muted-foreground" />
+                      )}
                       <div>
                         <p className="font-semibold">{user.full_name}</p>
                         <p className="text-xs text-muted-foreground">
@@ -301,7 +320,7 @@ export default function UserManagement() {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell onClick={() => { setDetailUser(user); setDetailLoading(true); userService.getUserById(Number(user.role_id)).then(setDetailUser).catch(() => setDetailUser(user)).finally(() => setDetailLoading(false)); }}>
                     <Badge
                       variant="outline"
                       className={`${ROLE_COLORS[user.role]}`}
@@ -314,10 +333,7 @@ export default function UserManagement() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => {
-                          setEditUser(user);
-                          setNewRole(user.role);
-                        }}
+                        onClick={(e) => { e.stopPropagation(); setEditUser(user); setNewRole(user.role); }}
                       >
                         <Edit className="h-4 w-4 mr-2" />
                         Edit
@@ -325,7 +341,7 @@ export default function UserManagement() {
                       <Button
                         size="sm"
                         variant="destructive"
-                        onClick={() => setDeleteUserTarget(user)}
+                        onClick={(e) => { e.stopPropagation(); setDeleteUserTarget(user); }}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
                         Delete
@@ -420,6 +436,101 @@ export default function UserManagement() {
         }}
         defaultRole="patient"
       />
+
+      {/* User Detail Dialog */}
+      <Dialog open={!!detailUser && !editUser} onOpenChange={() => setDetailUser(null)}>
+        <DialogContent className="rounded-3xl max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold">User Profile</DialogTitle>
+          </DialogHeader>
+          {detailUser && (
+            <div className="space-y-4">
+              {detailLoading ? (
+                <div className="flex items-center justify-center py-8 text-muted-foreground">Loading...</div>
+              ) : (
+                <>
+                  <div className="flex items-start gap-4 p-4 rounded-2xl bg-gradient-to-r from-primary/10 to-secondary/10">
+                    {detailUser.avatar_url || detailUser.avatarUrl ? (
+                      <Avatar className="h-16 w-16 ring-4 ring-primary/10 shrink-0">
+                        <AvatarImage src={detailUser.avatar_url || detailUser.avatarUrl} />
+                        <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-lg font-bold">
+                          {(detailUser.full_name || detailUser.firstName || detailUser.username || "?").split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                    ) : (
+                      <UserCircle className="h-16 w-16 text-muted-foreground shrink-0" />
+                    )}
+                    <div className="min-w-0">
+                      <h3 className="text-xl font-extrabold text-foreground">
+                        {detailUser.full_name || [detailUser.firstName, detailUser.lastName].filter(Boolean).join(" ") || detailUser.username || "Unknown"}
+                      </h3>
+                      <Badge className={`mt-1.5 ${ROLE_COLORS[detailUser.role] || ""}`}>
+                        {ROLE_LABELS[detailUser.role as AppRole] || detailUser.role}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {detailUser.email && (
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
+                        <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <span className="text-sm text-foreground">{detailUser.email}</span>
+                      </div>
+                    )}
+                    {detailUser.phone && (
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
+                        <Phone className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <span className="text-sm text-foreground">{detailUser.phone}</span>
+                      </div>
+                    )}
+                    {detailUser.gender && (
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
+                        <UserCircle className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <span className="text-sm capitalize text-foreground">{detailUser.gender}</span>
+                      </div>
+                    )}
+                    {detailUser.specialization && (
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
+                        <Stethoscope className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <span className="text-sm text-foreground">{detailUser.specialization}</span>
+                      </div>
+                    )}
+                    {detailUser.degrees && (
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
+                        <Award className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <span className="text-sm text-foreground">{detailUser.degrees}</span>
+                      </div>
+                    )}
+                    {detailUser.address && (
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
+                        <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <span className="text-sm text-foreground">{detailUser.address}</span>
+                      </div>
+                    )}
+                    {detailUser.education && (
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
+                        <GraduationCap className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <span className="text-sm text-foreground">{detailUser.education}</span>
+                      </div>
+                    )}
+                    {detailUser.experienceYears != null && (
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
+                        <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <span className="text-sm text-foreground">{detailUser.experienceYears} years experience</span>
+                      </div>
+                    )}
+                    {detailUser.experienceDetails && (
+                      <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/30">
+                        <Clock className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                        <span className="text-sm text-foreground">{detailUser.experienceDetails}</span>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

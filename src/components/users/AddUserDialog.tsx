@@ -94,11 +94,26 @@ export function AddUserDialog({ open, onOpenChange, onSuccess, defaultRole }: Ad
 
     setSaving(true);
     try {
+      let avatarUrl = "";
+      if (avatarFile) {
+        avatarUrl = await userService.uploadFile(avatarFile);
+      }
+
       await userService.createUser({
         username: form.full_name.trim() || form.email.trim(),
         email: form.email.trim(),
         password: form.password,
         role: form.role,
+        fullName: form.full_name.trim() || undefined,
+        phone: form.phone || undefined,
+        gender: form.gender || undefined,
+        specialization: form.specialization || undefined,
+        degrees: form.degrees || undefined,
+        education: form.education || undefined,
+        experienceYears: form.experience_years ? parseInt(form.experience_years) : undefined,
+        experienceDetails: form.experience_details || undefined,
+        address: form.address || undefined,
+        avatarUrl: avatarUrl || undefined,
       });
 
       toast.success(`${ROLE_LABELS[form.role]} "${form.full_name || form.email}" created successfully`);
@@ -106,7 +121,11 @@ export function AddUserDialog({ open, onOpenChange, onSuccess, defaultRole }: Ad
       onOpenChange(false);
       onSuccess();
     } catch (err: any) {
-      toast.error(err?.response?.data || err.message || "Failed to create user");
+      const responseData = err?.response?.data;
+      const validationErrors = responseData?.errors
+        ? Object.values(responseData.errors).join(", ")
+        : responseData?.message || responseData;
+      toast.error(validationErrors || err.message || "Failed to create user");
     }
     setSaving(false);
   };

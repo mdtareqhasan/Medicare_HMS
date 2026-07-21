@@ -18,12 +18,14 @@ public class BillingController {
     @Autowired
     private BillingService billingService;
 
+    // Returns all billing invoices.
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('ACCOUNTANT')")
     public List<BillingInvoice> getInvoices() {
         return billingService.getAllInvoices();
     }
 
+    // Creates an invoice by calculating the total charge for patient services.
     @PostMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('ACCOUNTANT')")
     public BillingInvoice createInvoice(@RequestParam Long patientId,
@@ -34,6 +36,7 @@ public class BillingController {
         return billingService.createInvoice(patientId, doctorId, doctorFee, labFee, pharmacyFee);
     }
 
+    // Marks an invoice as paid.
     @PutMapping("/{id}/pay")
     @PreAuthorize("hasRole('ADMIN') or hasRole('ACCOUNTANT')")
     public ResponseEntity<Map<String, String>> markPaid(@PathVariable Long id) {

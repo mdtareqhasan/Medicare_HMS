@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SignupRequest {
     @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters")
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     private String username;
 
     @NotBlank(message = "Email is required")
@@ -26,4 +26,16 @@ public class SignupRequest {
 
     // Optional role for admin user creation (doctor/patient/nurse/admin...)
     private String role;
+
+    // Profile fields
+    private String fullName;
+    private String phone;
+    private String gender;
+    private String specialization;
+    private String degrees;
+    private String education;
+    private Integer experienceYears;
+    private String experienceDetails;
+    private String address;
+    private String avatarUrl;
 }

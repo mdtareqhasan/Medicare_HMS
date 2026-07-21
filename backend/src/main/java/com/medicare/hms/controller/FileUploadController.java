@@ -22,6 +22,7 @@ public class FileUploadController {
     @Autowired
     private CloudinaryService cloudinaryService;
 
+    // Uploads a received file and returns its accessible URL.
     @PostMapping("/upload")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {

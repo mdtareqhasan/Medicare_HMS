@@ -3,7 +3,6 @@ USE medicare_hms;
 -- সব table clear করো (order গুরুত্বপূর্ণ — FK constraint এর জন্য)
 SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE test_reports;
-TRUNCATE TABLE chat_messages;
 TRUNCATE TABLE prescriptions;
 TRUNCATE TABLE notifications;
 TRUNCATE TABLE lab_reports;
@@ -232,21 +231,6 @@ INSERT INTO notifications (user_id, title, message, type, is_read, link) VALUES
 (10, 'Appointment Upcoming',     'Reminder: Appointment with Dr. Karim tomorrow at 8:00 AM.',              'INFO',    0, '/appointments');
 
 -- ════════════════════════════════
--- 13. CHAT MESSAGES
--- ════════════════════════════════
-INSERT INTO chat_messages (sender_id, receiver_id, message, read_message) VALUES
-(6,  2, 'Doctor, I still have fever after 2 days. Should I take more medicine?',          1),
-(2,  6, 'Please continue paracetamol for 2 more days and drink plenty of water.',         1),
-(6,  2, 'Thank you doctor. Should I come for a follow-up visit?',                         0),
-(7,  3, 'Doctor, the nasal spray is not available at any pharmacy nearby.',               1),
-(3,  7, 'You can use Budesonide spray as an alternative. Same dosage applies.',           0),
-(9,  4, 'Doctor, my blood sugar reading is 180 today. Is that concerning?',               1),
-(4,  9, 'That is slightly high. Please avoid sweets and increase walking time.',          1),
-(10, 4, 'I have been feeling dizzy since starting the new blood pressure medicine.',      0),
-(8,  3, 'Doctor, my back pain is getting worse. Should I get an X-ray?',                 1),
-(3,  8, 'Yes, please get a lumbar spine X-ray. I will write a referral for you.',        0);
-
--- ════════════════════════════════
 -- VERIFY
 -- ════════════════════════════════
 SELECT 'users'            as tbl, COUNT(*) as rows FROM users
@@ -260,5 +244,4 @@ UNION ALL SELECT 'test_reports',     COUNT(*) FROM test_reports
 UNION ALL SELECT 'medicines',        COUNT(*) FROM medicines
 UNION ALL SELECT 'billing_invoices', COUNT(*) FROM billing_invoices
 UNION ALL SELECT 'notifications',    COUNT(*) FROM notifications
-UNION ALL SELECT 'chat_messages',    COUNT(*) FROM chat_messages
 UNION ALL SELECT 'doctor_availability', COUNT(*) FROM doctor_availability;

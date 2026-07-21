@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { userService } from "@/api/userService";
 import {
   Leaf, ArrowRight, CalendarCheck, Stethoscope, FlaskConical, Pill,
   Shield, Heart, Phone, Mail, MapPin, Clock, Star, Users,
@@ -18,12 +20,8 @@ const services = [
   { icon: Shield, title: "Insurance Support", desc: "We accept all major insurance providers for hassle-free billing." },
 ];
 
-const doctors = [
-  { name: "Dr. Sarah Rahman", specialty: "Cardiologist", exp: "15 Years", rating: 4.9, img: "SR" },
-  { name: "Dr. Ahmed Khan", specialty: "Neurologist", exp: "12 Years", rating: 4.8, img: "AK" },
-  { name: "Dr. Fatima Akter", specialty: "Dermatologist", exp: "10 Years", rating: 4.9, img: "FA" },
-  { name: "Dr. Hasan Ali", specialty: "Orthopedic", exp: "18 Years", rating: 4.7, img: "HA" },
-];
+const initials = (name: string) =>
+  name ? name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "DR";
 
 const stats = [
   { value: "15K+", label: "Happy Patients" },
@@ -34,14 +32,24 @@ const stats = [
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
+  const [doctorList, setDoctorList] = useState<any[]>([]);
+  const [doctorLoading, setDoctorLoading] = useState(true);
+  const [selectedDoctor, setSelectedDoctor] = useState<any | null>(null);
 
   useEffect(() => {
-    if (!authLoading && user) {
-      navigate("/dashboard", { replace: true });
-    }
-  }, [user, authLoading, navigate]);
+    const fetchDoctors = async () => {
+      try {
+        const data = await userService.getPublicDoctors();
+        setDoctorList(data);
+      } catch (err: any) {
+        console.error("Failed to fetch doctors:", err?.response?.data || err?.message || err);
+        setDoctorList([]);
+      } finally {
+        setDoctorLoading(false);
+      }
+    };
+    fetchDoctors();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -242,37 +250,103 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {doctors.map((doc) => (
-              <div key={doc.name} className="dashboard-card p-6 text-center group">
-                <div className="w-20 h-20 rounded-full gradient-btn mx-auto flex items-center justify-center mb-4 shadow-lg">
-                  <span className="text-xl font-bold text-white">{doc.img}</span>
+            {doctorLoading ? (
+              [1, 2, 3, 4].map((i) => (
+                <div key={i} className="dashboard-card p-6 text-center">
+                  <div className="w-20 h-20 rounded-full mx-auto mb-4 skeleton-shimmer" />
+                  <div className="h-5 w-32 mx-auto rounded skeleton-shimmer mb-2" />
+                  <div className="h-4 w-24 mx-auto rounded skeleton-shimmer" />
                 </div>
-                <h3 className="text-base font-bold text-foreground">{doc.name}</h3>
-                <p className="text-sm text-secondary font-medium mt-1">{doc.specialty}</p>
-                <div className="flex items-center justify-center gap-3 mt-3 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" /> {doc.exp}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Star className="h-3 w-3 text-amber-500 fill-amber-500" /> {doc.rating}
-                  </span>
-                </div>
-                <Link to="/auth">
-                  <Button variant="outline" size="sm" className="rounded-xl mt-4 text-xs font-semibold">
-                    Book Appointment
-                    <ChevronRight className="h-3 w-3 ml-1" />
-                  </Button>
-                </Link>
+              ))
+            ) : doctorList.length === 0 ? (
+              <div className="col-span-full text-center py-8 text-muted-foreground">
+                <Stethoscope className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                <p>No doctors available at the moment</p>
               </div>
-            ))}
+            ) : (
+              doctorList.slice(0, 8).map((doc: any) => {
+                const fullName = doc.fullName || "Doctor";
+                const docInitials = initials(fullName);
+                return (
+                  <div key={doc.id} className="dashboard-card p-6 text-center group hover:shadow-lg transition-shadow">
+                    <Avatar className="w-20 h-20 mx-auto mb-4 ring-4 ring-primary/10 shadow-lg">
+                      <AvatarImage src={doc.avatarUrl || ""} alt={fullName} />
+                      <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-xl font-bold">
+                        {docInitials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <h3 className="text-base font-bold text-foreground">Dr. {fullName}</h3>
+                    <p className="min-h-5 mt-1 text-xs font-medium text-primary truncate">
+                      {doc.specialization || "Medical Specialist"}
+                    </p>
+                    {doc.experienceYears != null && (
+                      <p className="mt-1 text-xs text-muted-foreground">{doc.experienceYears}+ years of experience</p>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-xl mt-4 text-xs font-semibold w-full"
+                      onClick={() => setSelectedDoctor(doc)}
+                    >
+                      View Profile
+                      <ChevronRight className="h-3 w-3 ml-1" />
+                    </Button>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       </section>
 
       {/* ═══ CTA ═══ */}
+      <Dialog open={selectedDoctor !== null} onOpenChange={(open) => !open && setSelectedDoctor(null)}>
+        <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto rounded-3xl">
+          {selectedDoctor && (
+            <>
+              <DialogHeader className="items-center text-center">
+                <Avatar className="h-24 w-24 ring-4 ring-primary/10 shadow-lg">
+                  <AvatarImage src={selectedDoctor.avatarUrl || ""} alt={selectedDoctor.fullName} />
+                  <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-2xl font-bold text-white">
+                    {initials(selectedDoctor.fullName)}
+                  </AvatarFallback>
+                </Avatar>
+                <DialogTitle className="pt-3 text-xl font-extrabold">Dr. {selectedDoctor.fullName}</DialogTitle>
+                {selectedDoctor.specialization && <p className="text-sm font-semibold text-primary">{selectedDoctor.specialization}</p>}
+              </DialogHeader>
+
+              <div className="space-y-3 pt-2 text-center">
+                {selectedDoctor.degrees && <p className="text-sm font-medium text-foreground">{selectedDoctor.degrees}</p>}
+                {selectedDoctor.experienceYears != null && (
+                  <p className="font-bold text-emerald-600">{selectedDoctor.experienceYears}+ Years of Experience</p>
+                )}
+                {selectedDoctor.experienceDetails && (
+                  <div className="rounded-xl bg-muted/50 p-4 text-sm leading-relaxed text-muted-foreground">{selectedDoctor.experienceDetails}</div>
+                )}
+                {selectedDoctor.education && (
+                  <div className="flex items-start gap-3 rounded-xl bg-muted/30 p-3 text-left">
+                    <FileText className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <div><p className="text-xs font-semibold text-muted-foreground">Education</p><p className="text-sm text-foreground">{selectedDoctor.education}</p></div>
+                  </div>
+                )}
+                {selectedDoctor.address && (
+                  <div className="flex items-start gap-3 rounded-xl bg-muted/30 p-3 text-left">
+                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <div><p className="text-xs font-semibold text-muted-foreground">Practice Address</p><p className="text-sm text-foreground">{selectedDoctor.address}</p></div>
+                  </div>
+                )}
+                <Link to="/auth" className="block pt-2">
+                  <Button className="w-full rounded-xl gradient-btn border-0 text-white"><CalendarCheck className="mr-2 h-4 w-4" /> Book an Appointment</Button>
+                </Link>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <section className="py-16 md:py-24 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="dashboard-card p-8 md:p-12 lg:p-16 text-center bg-gradient-to-br from-primary to-secondary/80 relative overflow-hidden">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-secondary/80 p-8 text-center shadow-[0_18px_50px_-20px_rgba(11,77,60,0.55)] md:p-12 lg:p-16">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent)]" />
             <div className="relative">
               <h2 className="text-2xl md:text-4xl font-extrabold text-white tracking-tight">
@@ -289,7 +363,7 @@ export default function LandingPage() {
                   </Button>
                 </Link>
                 <a href="tel:+880123456789">
-                  <Button variant="outline" className="rounded-xl h-12 px-8 text-sm font-bold border-white/30 text-white hover:bg-white/10">
+                  <Button className="h-12 rounded-xl border border-white/50 !bg-white/15 px-8 text-sm font-bold !text-white hover:!bg-white/25">
                     <Phone className="h-4 w-4 mr-2" />
                     Call Us
                   </Button>

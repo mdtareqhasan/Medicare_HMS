@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "appointments")
@@ -34,6 +36,21 @@ public class Appointment {
 
     @Column(columnDefinition = "TEXT")
     private String notes;
+
+    @Column(name = "consultation_type")
+    private String consultationType;
+
+    @Column(name = "visit_type")
+    private String visitType;
+
+    private String urgency;
+
+    private String department;
+
+    @ElementCollection
+    @CollectionTable(name = "appointment_symptoms", joinColumns = @JoinColumn(name = "appointment_id"))
+    @Column(name = "symptom")
+    private List<String> symptoms = new ArrayList<>();
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

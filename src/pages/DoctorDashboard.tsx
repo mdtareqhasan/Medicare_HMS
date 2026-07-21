@@ -46,6 +46,7 @@ interface Appointment {
   status: string;
   notes: string | null;
   patient_name?: string;
+  symptoms?: string[];
 }
 
 interface MedicalRecord {
@@ -127,6 +128,7 @@ export default function DoctorDashboard() {
               appointment_date: a.appointmentDate || a.appointment_date,
               status: normalizeAppointmentStatus(a.status),
               notes: a.notes || null,
+              symptoms: Array.isArray(a.symptoms) ? a.symptoms : [],
               patient_name: (a.patient as any)?.username || a.patient_name || a.patientName || "Unknown",
             }))
           );

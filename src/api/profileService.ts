@@ -12,6 +12,13 @@ export interface ProfilePayload {
   emergencyPhone?: string | null;
   emergencyRelation?: string | null;
   avatarUrl?: string | null;
+  specialization?: string | null;
+  degrees?: string | null;
+  education?: string | null;
+  experienceYears?: number | null;
+  experienceDetails?: string | null;
+  insuranceProvider?: string | null;
+  insurancePolicyNumber?: string | null;
 }
 
 export interface ProfileResponse extends ProfilePayload {

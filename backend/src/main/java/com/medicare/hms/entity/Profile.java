@@ -53,4 +53,25 @@ public class Profile {
 
     @Column(name = "emergency_relation")
     private String emergencyRelation;
+
+    @Column(name = "specialization")
+    private String specialization;
+
+    @Column(name = "degrees")
+    private String degrees;
+
+    @Column(name = "education")
+    private String education;
+
+    @Column(name = "experience_years")
+    private Integer experienceYears;
+
+    @Column(name = "experience_details", columnDefinition = "TEXT")
+    private String experienceDetails;
+
+    @Column(name = "insurance_provider")
+    private String insuranceProvider;
+
+    @Column(name = "insurance_policy_number")
+    private String insurancePolicyNumber;
 }

@@ -27,25 +27,30 @@ public class JwtUtils {
     @Value("${jwt.expiration:86400000}")
     private long jwtExpirationMs;
 
+    // Builds the HMAC signing key used to verify JWTs.
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
+    // Generates a signed JWT for an authenticated principal.
     public String generateJwtToken(Authentication authentication) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
         return generateJwtToken(userPrincipal.getUsername(),
                 userPrincipal.getAuthorities().stream().findFirst().map(Object::toString).orElse(""));
     }
 
+    // Generates a signed JWT using only a username.
     public String generateJwtTokenFromUsername(String username) {
         return generateJwtToken(username, "");
     }
 
+    // Generates a signed JWT including the user's role claim.
     public String generateJwtTokenFromUser(com.medicare.hms.entity.User user) {
         String roleClaim = "ROLE_" + (user.getRole() != null ? user.getRole().name() : "PATIENT");
         return generateJwtToken(user.getUsername(), roleClaim);
     }
 
+    // Generates a signed JWT for an authenticated principal.
     private String generateJwtToken(String username, String roleClaim) {
         return Jwts.builder()
                 .setSubject(username)
@@ -56,20 +61,24 @@ public class JwtUtils {
                 .compact();
     }
 
+    // Reads the username subject from a JWT.
     public String getUserNameFromJwtToken(String token) {
         return extractUsername(token);
     }
 
+    // Extracts the username subject claim from a JWT.
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
+    // Extracts a specific claim from a JWT using the supplied resolver.
     public <T> T extractClaim(String token, java.util.function.Function<Claims, T> claimsResolver) {
         Claims claims = Jwts.parserBuilder().setSigningKey(getSigningKey()).build()
                 .parseClaimsJws(token).getBody();
         return claimsResolver.apply(claims);
     }
 
+    // Checks whether a JWT expiry time has passed.
     public boolean isTokenExpired(String token) {
         Date expiration = extractClaim(token, Claims::getExpiration);
         Instant now = Instant.now();
@@ -80,11 +89,14 @@ public class JwtUtils {
         return expired;
     }
 
+    // Checks that a JWT belongs to the supplied user and is not expired.
     public boolean isTokenValid(String token, org.springframework.security.core.userdetails.UserDetails userDetails) {
+        // Extracts the username subject claim from a JWT.
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
+    // Validates a JWT signature and structure before it is trusted.
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(authToken);
@@ -109,6 +121,7 @@ public class JwtUtils {
         return false;
     }
 
+    // Reads the role claim from a JWT if one is present.
     private String extractRoleClaim(String token) {
         try {
             String[] parts = token.split("\\.");
@@ -123,4 +136,5 @@ public class JwtUtils {
             return null;
         }
     }
+
 }
